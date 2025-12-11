@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GTM Diagnostics Survey</title>
+  <title>GTM Diagnostics Outbound Assessmenty</title>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -411,6 +411,7 @@
       "If you needed to double outbound-driven pipeline in the next 90 days, which parts of your current outbound process would scale smoothly, and which parts would likely fail first?"
     ];
 
+
     // Icons
     const MicIcon = () => (
       <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -531,6 +532,32 @@
       const mediaRecorderRef = useRef(null);
       const chunksRef = useRef([]);
 
+      // Get supported audio mimeType
+      const getSupportedMimeType = () => {
+        const types = [
+          'audio/webm;codecs=opus',
+          'audio/webm',
+          'audio/mp4',
+          'audio/ogg;codecs=opus',
+          'audio/wav',
+          ''  // Empty string = browser default
+        ];
+        for (const type of types) {
+          if (type === '' || MediaRecorder.isTypeSupported(type)) {
+            return type;
+          }
+        }
+        return '';
+      };
+
+      const getFileExtension = (mimeType) => {
+        if (mimeType.includes('webm')) return 'webm';
+        if (mimeType.includes('mp4')) return 'mp4';
+        if (mimeType.includes('ogg')) return 'ogg';
+        if (mimeType.includes('wav')) return 'wav';
+        return 'webm'; // default
+      };
+
       const startRecording = async () => {
         if (!audioStream) {
           setStatus('Microphone not available. Please refresh and try again.');
@@ -538,7 +565,10 @@
         }
 
         try {
-          mediaRecorderRef.current = new MediaRecorder(audioStream, { mimeType: 'audio/webm' });
+          const mimeType = getSupportedMimeType();
+          const options = mimeType ? { mimeType } : {};
+          
+          mediaRecorderRef.current = new MediaRecorder(audioStream, options);
           chunksRef.current = [];
 
           mediaRecorderRef.current.ondataavailable = (e) => {
@@ -548,8 +578,10 @@
           };
 
           mediaRecorderRef.current.onstop = async () => {
-            const audioBlob = new Blob(chunksRef.current, { type: 'audio/webm' });
-            await transcribeAudio(audioBlob);
+            const actualMimeType = mediaRecorderRef.current.mimeType || 'audio/webm';
+            const audioBlob = new Blob(chunksRef.current, { type: actualMimeType });
+            const extension = getFileExtension(actualMimeType);
+            await transcribeAudio(audioBlob, extension);
           };
 
           mediaRecorderRef.current.start();
@@ -557,7 +589,7 @@
           setStatus('Recording... Click to stop');
         } catch (err) {
           console.error('Error starting recording:', err);
-          setStatus('Could not start recording. Please try again.');
+          setStatus('Could not start recording. Please try again or type your answer.');
         }
       };
 
@@ -569,7 +601,7 @@
         }
       };
 
-      const transcribeAudio = async (audioBlob) => {
+      const transcribeAudio = async (audioBlob, extension = 'webm') => {
         if (!WORKER_URL || WORKER_URL === 'YOUR_CLOUDFLARE_WORKER_URL_HERE') {
           setStatus('Transcription service not configured. Please contact the administrator.');
           return;
@@ -580,7 +612,7 @@
 
         try {
           const formData = new FormData();
-          formData.append('file', audioBlob, 'recording.webm');
+          formData.append('file', audioBlob, `recording.${extension}`);
 
           const response = await fetch(WORKER_URL, {
             method: 'POST',
@@ -714,13 +746,31 @@
 
       const handleContinueToQuestions = async () => {
         if (validateContact()) {
+          // Check if MediaRecorder is supported
+          if (!window.MediaRecorder) {
+            alert('Voice recording is not supported on this browser. Please use Chrome, Firefox, or Safari 14.5+.');
+            return;
+          }
+
           // Request microphone permission once
           try {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const stream = await navigator.mediaDevices.getUserMedia({ 
+              audio: {
+                echoCancellation: true,
+                noiseSuppression: true,
+              } 
+            });
             audioStreamRef.current = stream;
             setStep('questions');
           } catch (err) {
-            alert('Microphone access is required for voice recording. Please allow microphone access and try again.');
+            console.error('Microphone error:', err);
+            if (err.name === 'NotAllowedError') {
+              alert('Microphone access was denied. Please allow microphone access in your browser settings and try again.');
+            } else if (err.name === 'NotFoundError') {
+              alert('No microphone found. Please connect a microphone and try again.');
+            } else {
+              alert('Could not access microphone. Please check your browser settings and try again.');
+            }
           }
         }
       };
