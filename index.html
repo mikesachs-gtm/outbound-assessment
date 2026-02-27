@@ -334,35 +334,67 @@
     .scale-label { font-size: 0.72rem; color: var(--gray-500); margin-top: 0.25rem; }
 
     .percent-grid {
-      display: grid;
-      gap: 0.9rem;
+      background: #fff;
+      border: 2px solid var(--gray-200);
+      border-radius: 0.85rem;
+      padding: 0 1rem;
       margin-top: 0.5rem;
     }
     .percent-row {
-      display: grid;
-      grid-template-columns: minmax(140px, 1fr) 140px;
-      gap: 1rem;
+      display: flex;
+      justify-content: space-between;
       align-items: center;
+      gap: 1rem;
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--gray-200);
+    }
+    .percent-row:last-child {
+      border-bottom: none;
     }
     .percent-label {
-      font-size: 0.9rem;
-      font-weight: 600;
+      font-size: 0.95rem;
+      font-weight: 500;
       color: var(--primary);
     }
+    .percent-input-wrapper {
+      width: 110px;
+      flex-shrink: 0;
+    }
+    .input-with-suffix {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .input-with-suffix input {
+      padding-right: 2rem;
+      text-align: right;
+    }
+    .input-with-suffix .suffix {
+      position: absolute;
+      right: 1rem;
+      color: var(--gray-500);
+      font-weight: 600;
+      pointer-events: none;
+    }
     .percent-total {
-      margin-top: 0.85rem;
+      margin-top: 1rem;
       padding: 0.9rem 1rem;
       border-radius: 0.8rem;
       background: var(--gray-50);
       border: 1px solid var(--gray-200);
-      font-size: 0.84rem;
+      font-size: 0.88rem;
       color: var(--gray-600);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
-    .percent-total strong { color: var(--primary); }
+    .percent-total strong { color: var(--primary); font-size: 1.05rem; }
     .percent-total.invalid {
       border-color: rgba(239, 68, 68, 0.24);
       background: rgba(239, 68, 68, 0.05);
       color: var(--error);
+    }
+    .percent-total.invalid strong { color: var(--error); 
     }
 
     .actions {
@@ -812,7 +844,7 @@
         id: 'prospecting_staffing',
         section: 'team',
         type: 'multi',
-        title: 'How is prospecting currently staffed?',
+        title: 'Who is prospecting in your company?',
         description: 'Select every group that actively contributes to pipeline generation.',
         minSelections: 1,
         options: [
@@ -2254,25 +2286,63 @@
       el.questionContent.appendChild(wrapper);
     }
 
-    function renderPercentGroupQuestion(question) {
+function renderPercentGroupQuestion(question) {
       const answer = state.answers[question.id] || {};
       const wrapper = document.createElement('div');
       wrapper.className = 'percent-grid';
+      
       question.fields.forEach(field => {
         const row = document.createElement('div');
         row.className = 'percent-row';
         row.innerHTML = `
           <div class="percent-label">${field.label}</div>
-          <div class="field">
+          <div class="percent-input-wrapper input-with-suffix">
             <input id="${question.id}_${field.key}" type="number" min="0" max="100" step="1" value="${escapeHtml(answer[field.key] ?? '')}" placeholder="0" />
+            <span class="suffix">%</span>
           </div>
         `;
         wrapper.appendChild(row);
       });
-      const total = question.fields.reduce((sum, field) => sum + Number(answer[field.key] || 0), 0);
+
       const totalDiv = document.createElement('div');
-      totalDiv.className = 'percent-total' + (total !== 100 ? ' invalid' : '');
-      totalDiv.innerHTML = `Current total: <strong>${total}%</strong> ${total === 100 ? '✓' : '— should equal 100%'}`;
+      
+      // Live updating function
+      const updateTotal = () => {
+        let total = 0;
+        const currentAnswers = {};
+        
+        question.fields.forEach(field => {
+          const el = document.getElementById(`${question.id}_${field.key}`);
+          const val = el.value === '' ? 0 : Number(el.value);
+          total += val;
+          currentAnswers[field.key] = el.value === '' ? '' : Number(el.value);
+        });
+
+        // Save state silently on every keystroke
+        state.answers[question.id] = currentAnswers;
+
+        totalDiv.className = 'percent-total' + (total !== 100 ? ' invalid' : '');
+        totalDiv.innerHTML = `
+          <span>Current total: <strong>${total}%</strong></span> 
+          <span>${total === 100 ? '✅' : 'Needs to equal 100%'}</span>
+        `;
+      };
+
+      // Listen for input events directly on the wrapper (event delegation)
+      wrapper.addEventListener('input', (e) => {
+        if (e.target.tagName === 'INPUT') {
+          updateTotal();
+        }
+      });
+
+      // Initial render calculation
+      const initialTotal = question.fields.reduce((sum, field) => sum + Number(answer[field.key] || 0), 0);
+      totalDiv.className = 'percent-total' + (initialTotal !== 100 ? ' invalid' : '');
+      totalDiv.innerHTML = `
+        <span>Current total: <strong>${initialTotal}%</strong></span> 
+        <span>${initialTotal === 100 ? '✅' : 'Needs to equal 100%'}</span>
+      `;
+
       el.questionContent.appendChild(wrapper);
       el.questionContent.appendChild(totalDiv);
     }
