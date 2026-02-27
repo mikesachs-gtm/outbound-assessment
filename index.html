@@ -752,7 +752,7 @@
         section: 'contact',
         type: 'contact',
         title: 'Tell us who is completing the assessment.',
-        description: 'We use this to personalize the results.'
+        description: 'We use this to personalize the results and include the respondent copy in the submission payload.'
       },
       {
         id: 'company_type',
@@ -963,7 +963,7 @@
           { value: 'funding-stage', label: 'Funding stage', icon: '💸' },
           { value: 'hiring-pattern', label: 'Hiring pattern', icon: '📈' },
           { value: 'strategic-initiative', label: 'Strategic initiative / change event', icon: '🚀' },
-          { value: 'current-tools', label: 'Current tools / install base', icon: '🔧' },
+          { value: 'current-tools', label: 'current tools / install base', icon: '🔧' },
           { value: 'none-consistent', label: 'Nothing consistent', icon: '❌' }
         ]
       },
@@ -2099,7 +2099,7 @@
       el.questionTitle.textContent = question.title;
       el.questionDescription.textContent = question.description || '';
       el.backBtn.disabled = state.history.length === 0;
-      el.nextBtn.textContent = state.index === visibleQuestions.length - 1 ? 'View Results →' : 'Next →';
+      el.nextBtn.textContent = state.index === visibleQuestions.length - 1 ? 'Submit Assessment →' : 'Next →';
       el.questionContent.innerHTML = '';
       state.errors[question.id] = null;
 
@@ -2390,7 +2390,7 @@
       const visibleQuestions = getVisibleQuestions();
       const currentQuestionId = question.id;
       if (state.index === visibleQuestions.length - 1) {
-        showResults();
+        submitAssessment();
         return;
       }
       state.history.push(currentQuestionId);
@@ -2592,20 +2592,20 @@
       const lowManagement = scores.management < 65;
 
       recommendations.push({
-        service: 'prospecting',
+        service: 'Prospecting Playbook',
         score: (100 - scores.execution) + (100 - scores.messaging) + (100 - scores.targeting) + (lowManagement ? 8 : 0),
         reason: 'The biggest leverage appears to be a stronger outbound operating system: ICP precision, research method, channel-specific messaging, sequence design, follow-up structure, and rep execution discipline.'
       });
 
       recommendations.push({
-        service: 'signal',
+        service: 'Signal-Based GTM Blueprint',
         score: (100 - scores.signals) + (mqlShare > 20 ? 10 : 0) + (answers.shared_targeting_logic === 'no' ? 8 : 0) + (answers.signal_weighting === 'no' ? 8 : 0),
         reason: 'Prioritization, urgency, and routing appear to need a stronger signal-driven system so the team can work the right accounts at the right time and re-activate warm opportunities faster.'
       });
 
       if (enterprise || answers.named_accounts === 'formal' || answers.named_accounts === 'partial') {
         recommendations.push({
-          service: 'abm',
+          service: 'ABM Blueprint',
           score: (enterprise ? 30 : 0) + (answers.named_accounts === 'no' ? 18 : 8) + (answers.shared_targeting_logic === 'no' ? 12 : 4) + (answers.channel_coordination === 'siloed' ? 10 : 4),
           reason: 'Your motion appears to have account-level complexity that may need stronger account selection, personalization, buying-group coordination, and sales-marketing orchestration.'
         });
@@ -2613,10 +2613,10 @@
 
       const sortedRecs = recommendations.sort((a, b) => b.score - a.score).slice(0, 3);
 
-      let readiness = 'High intent';
-      if (answers.urgency === 'exploring') readiness = 'Exploring';
-      else if (answers.urgency === 'half') readiness = 'Medium-term';
-      else if (answers.urgency === 'quarter') readiness = 'Near-term';
+      let readiness = 'Ready for change';
+      if (answers.urgency === 'exploring') readiness = 'Exploring change';
+      else if (answers.urgency === 'half') readiness = 'Medium-term priority';
+      else if (answers.urgency === 'quarter') readiness = 'Near-term priority';
 
       const focusAreas = [];
       if (primary.key === 'targeting') focusAreas.push('Tighten ICP, disqualifiers, and account selection criteria.');
@@ -2649,7 +2649,33 @@
       return '';
     }
 
-    function showResults() {
+    async function submitAssessment() {
+      const results = calculateResults(state.answers);
+      const payload = buildSubmissionPayload(results);
+
+      el.questionScreen.classList.add('hidden');
+      el.submittingScreen.classList.remove('hidden');
+
+      let success = true;
+      try {
+        if (!CONFIG.submissionWebhookUrl || CONFIG.submissionWebhookUrl === 'YOUR_N8N_WEBHOOK_URL_HERE') {
+          throw new Error('Please configure submissionWebhookUrl before going live.');
+        }
+        await fetch(CONFIG.submissionWebhookUrl, {
+          method: 'POST',
+          mode: CONFIG.useNoCors ? 'no-cors' : 'cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+      } catch (error) {
+        success = false;
+        console.error('Submission error:', error);
+      }
+
+      showResults(success);
+    }
+
+    function showResults(submitSuccess = true) {
       const results = calculateResults(state.answers);
       const contact = state.answers.contact_info || {};
       const primaryService = results.recommendations[0]?.service;
@@ -2658,8 +2684,16 @@
       el.questionScreen.classList.add('hidden');
       el.submittingScreen.classList.add('hidden');
       el.resultsScreen.classList.remove('hidden');
+
+      const submitStatusHtml = `
+        <div class="callout" style="margin-bottom: 1.5rem; border-color: ${submitSuccess ? 'rgba(16, 185, 129, 0.24)' : 'rgba(239, 68, 68, 0.24)'}; background: ${submitSuccess ? 'rgba(16, 185, 129, 0.08)' : 'rgba(239, 68, 68, 0.05)'};">
+          ${submitSuccess ? '<strong style="color: var(--success);">✅ Submission sent successfully.</strong>' : '<strong style="color: var(--error);">⚠️ Submission was not delivered.</strong>'}
+        </div>
+      `;
+
       el.resultsScreen.innerHTML = `
         <div class="results-wrap">
+          ${submitStatusHtml}
           <div class="results-header">
             <span class="badge">✅ Assessment complete</span>
             <h2 class="results-title">${escapeHtml(introName)}</h2>
@@ -2735,7 +2769,7 @@
             <div class="panel">
               <h3>Submission & delivery</h3>
               <div class="callout">
-                When you submit, the payload includes:
+                Your submission payload included:
                 <ul class="bullets">
                   <li>every raw answer</li>
                   <li>score breakdown and diagnoses</li>
@@ -2751,51 +2785,12 @@
               <button class="btn btn-secondary" type="button" id="downloadResultsMdBtn">Download results (.md)</button>
               <button class="btn btn-secondary" type="button" id="restartBtn">Start over</button>
             </div>
-            <div class="actions-right">
-              <button class="btn btn-primary" type="button" id="submitBtn">Submit assessment →</button>
-            </div>
           </div>
         </div>
       `;
 
-      document.getElementById('submitBtn').addEventListener('click', submitAssessment);
       document.getElementById('restartBtn').addEventListener('click', restart);
       document.getElementById('downloadResultsMdBtn').addEventListener('click', downloadCurrentMarkdown);
-    }
-
-    async function submitAssessment() {
-      const question = getCurrentQuestion();
-      const results = calculateResults(state.answers);
-      const payload = buildSubmissionPayload(results);
-
-      el.resultsScreen.classList.add('hidden');
-      el.submittingScreen.classList.remove('hidden');
-
-      let success = true;
-      try {
-        if (!CONFIG.submissionWebhookUrl || CONFIG.submissionWebhookUrl === 'YOUR_N8N_WEBHOOK_URL_HERE') {
-          throw new Error('Please configure submissionWebhookUrl before going live.');
-        }
-        await fetch(CONFIG.submissionWebhookUrl, {
-          method: 'POST',
-          mode: CONFIG.useNoCors ? 'no-cors' : 'cors',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-      } catch (error) {
-        success = false;
-        console.error('Submission error:', error);
-      }
-
-      el.submittingScreen.classList.add('hidden');
-      el.resultsScreen.classList.remove('hidden');
-      const note = document.createElement('div');
-      note.className = 'callout';
-      note.style.marginTop = '1rem';
-      note.innerHTML = success
-        ? '<strong>Submission sent.</strong>'
-        : '<strong>Submission was not delivered.</strong>';
-      el.resultsScreen.appendChild(note);
     }
 
     function restart() {
@@ -2863,7 +2858,7 @@
         '### Score Breakdown',
         ...results.ordered.map(item => `- ${item.name}: ${item.value}/100`),
         '',
-        '### Recommended Services',
+        '### Recommended Solutions',
         ...results.recommendations.map((rec, idx) => `- ${idx === 0 ? '**Best match** ' : ''}${SERVICES[rec.service].name}: ${rec.reason}`),
         '',
         '### Priority Focus Areas',
