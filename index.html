@@ -1,19 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GTM Diagnostics Outbound Assessmenty</title>
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GTM Diagnostics Outbound Assessment</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --primary: #0F172A;
-      --secondary: #00D0B4;
-      --secondary-light: rgba(0, 208, 180, 0.1);
+      --primary: #0f172a;
+      --primary-soft: #1e293b;
+      --secondary: #00d0b4;
       --secondary-hover: #00b89e;
+      --secondary-light: rgba(0, 208, 180, 0.12);
       --gray-50: #f8fafc;
       --gray-100: #f1f5f9;
       --gray-200: #e2e8f0;
@@ -22,936 +22,2913 @@
       --gray-500: #64748b;
       --gray-600: #475569;
       --gray-700: #334155;
+      --gray-800: #1f2937;
       --error: #ef4444;
-      --error-light: #fef2f2;
+      --warning: #f59e0b;
+      --success: #10b981;
+      --shadow: 0 12px 40px rgba(15, 23, 42, 0.08);
     }
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: 'Montserrat', sans-serif;
-      background: var(--gray-50);
+      font-family: "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: linear-gradient(180deg, #f8fafc 0%, #f5f5f5 100%);
       color: var(--primary);
-      line-height: 1.6;
+      line-height: 1.55;
       min-height: 100vh;
     }
-
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 40px 20px;
+    .assessment * { box-sizing: border-box; }
+    .assessment {
+      padding: 2.5rem 1rem 3rem;
     }
-
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
     .header {
       text-align: center;
-      margin-bottom: 40px;
+      margin-bottom: 1.5rem;
     }
-
     .header h1 {
       font-size: 2rem;
       font-weight: 700;
       color: var(--primary);
-      margin-bottom: 8px;
+      margin-bottom: 0.5rem;
     }
-
     .header p {
+      max-width: 760px;
+      margin: 0 auto;
+      font-size: 0.98rem;
       color: var(--gray-500);
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 290px 1fr;
+      gap: 1.5rem;
+      align-items: start;
+    }
+    .sidebar, .card {
+      background: #fff;
+      border-radius: 1rem;
+      box-shadow: var(--shadow);
+    }
+    .sidebar {
+      padding: 1.25rem;
+      position: sticky;
+      top: 1rem;
+    }
+    .sidebar h2 {
       font-size: 1rem;
+      margin-bottom: 0.5rem;
     }
-
-    .progress-bar {
-      background: var(--gray-200);
-      height: 8px;
-      border-radius: 4px;
-      margin-bottom: 32px;
-      overflow: hidden;
+    .sidebar p {
+      font-size: 0.83rem;
+      color: var(--gray-500);
+      margin-bottom: 1rem;
     }
-
-    .progress-fill {
-      background: var(--secondary);
-      height: 100%;
-      border-radius: 4px;
-      transition: width 0.3s ease;
+    .section-list {
+      list-style: none;
+      display: grid;
+      gap: 0.5rem;
+    }
+    .section-pill {
+      border: 1px solid var(--gray-200);
+      border-radius: 0.75rem;
+      padding: 0.72rem 0.8rem;
+      background: #fff;
+      transition: all 0.2s ease;
+    }
+    .section-pill.active {
+      border-color: var(--secondary);
+      background: var(--secondary-light);
+      box-shadow: 0 4px 14px rgba(0, 208, 180, 0.16);
+    }
+    .section-pill.done {
+      border-color: rgba(16, 185, 129, 0.24);
+      background: rgba(16, 185, 129, 0.08);
+    }
+    .section-pill .name {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--primary);
+    }
+    .section-pill .meta {
+      font-size: 0.72rem;
+      color: var(--gray-500);
+      margin-top: 0.2rem;
+    }
+    .sidebar-note {
+      margin-top: 1rem;
+      background: var(--gray-50);
+      border-radius: 0.75rem;
+      padding: 0.85rem;
+      border: 1px solid var(--gray-200);
+      font-size: 0.78rem;
+      color: var(--gray-600);
     }
 
     .card {
-      background: white;
-      border-radius: 16px;
-      padding: 32px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
-      margin-bottom: 24px;
+      padding: 1.5rem;
     }
-
-    .form-group {
-      margin-bottom: 24px;
+    .progress-wrap {
+      margin-bottom: 1.3rem;
     }
-
-    .form-group:last-child {
-      margin-bottom: 0;
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      font-size: 0.78rem;
+      color: var(--gray-500);
+      margin-bottom: 0.65rem;
+      flex-wrap: wrap;
     }
-
-    .form-label {
-      display: block;
-      font-weight: 600;
-      font-size: 0.875rem;
-      margin-bottom: 8px;
-      color: var(--primary);
-    }
-
-    .form-label span {
-      color: var(--error);
-    }
-
-    .form-input {
+    .progress-track {
       width: 100%;
-      padding: 12px 16px;
-      font-family: 'Montserrat', sans-serif;
-      font-size: 1rem;
-      border: 2px solid var(--gray-200);
-      border-radius: 8px;
-      transition: border-color 0.2s, box-shadow 0.2s;
-      background: white;
+      height: 0.6rem;
+      background: var(--gray-200);
+      border-radius: 999px;
+      overflow: hidden;
     }
-
-    .form-input:focus {
-      outline: none;
-      border-color: var(--secondary);
-      box-shadow: 0 0 0 3px var(--secondary-light);
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--secondary), var(--primary));
+      border-radius: 999px;
+      transition: width 0.35s ease;
     }
-
-    .form-input.error {
-      border-color: var(--error);
-      background: var(--error-light);
-    }
-
-    .error-message {
-      color: var(--error);
-      font-size: 0.75rem;
-      margin-top: 4px;
-    }
-
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
-
-    @media (max-width: 600px) {
-      .form-row {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .btn {
-      font-family: 'Montserrat', sans-serif;
-      font-weight: 600;
-      font-size: 1rem;
-      padding: 14px 28px;
-      border-radius: 8px;
-      border: none;
-      cursor: pointer;
-      transition: all 0.2s;
+    .section-tag {
       display: inline-flex;
       align-items: center;
-      justify-content: center;
-      gap: 8px;
+      gap: 0.45rem;
+      margin-bottom: 0.9rem;
+      background: var(--gray-100);
+      color: var(--gray-700);
+      border-radius: 999px;
+      padding: 0.45rem 0.8rem;
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    .question-title {
+      font-size: 1.3rem;
+      line-height: 1.35;
+      margin-bottom: 0.65rem;
+      color: var(--primary);
+    }
+    .question-description {
+      font-size: 0.92rem;
+      color: var(--gray-500);
+      margin-bottom: 1.25rem;
+      max-width: 820px;
+    }
+    .subheading {
+      font-size: 0.88rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--gray-500);
+      margin: 1rem 0 0.75rem;
+    }
+    .options {
+      display: grid;
+      gap: 0.8rem;
+    }
+    .option-btn, .multi-option {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.85rem;
+      width: 100%;
+      padding: 1rem;
+      border-radius: 0.85rem;
+      border: 2px solid var(--gray-200);
+      background: #fff;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: left;
+      color: var(--primary);
+      font-family: inherit;
+    }
+    .option-btn:hover, .multi-option:hover {
+      border-color: var(--secondary);
+      background: rgba(0, 208, 180, 0.05);
+      transform: translateY(-1px);
+    }
+    .option-btn.selected, .multi-option.selected {
+      border-color: var(--secondary);
+      background: rgba(0, 208, 180, 0.1);
+      box-shadow: 0 6px 18px rgba(0, 208, 180, 0.18);
+    }
+    .option-icon {
+      font-size: 1.3rem;
+      line-height: 1;
+      flex-shrink: 0;
+      width: 1.5rem;
+      text-align: center;
+    }
+    .option-text {
+      flex: 1;
+    }
+    .option-label {
+      display: block;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--primary);
+    }
+    .option-help {
+      display: block;
+      font-size: 0.78rem;
+      color: var(--gray-500);
+      margin-top: 0.28rem;
+      line-height: 1.45;
+    }
+    .checkmark {
+      width: 1.25rem;
+      height: 1.25rem;
+      border-radius: 999px;
+      border: 2px solid var(--gray-300);
+      flex-shrink: 0;
+      margin-top: 0.1rem;
+      transition: all 0.2s ease;
+    }
+    .multi-option.selected .checkmark {
+      border-color: var(--secondary);
+      background: var(--secondary);
+      box-shadow: inset 0 0 0 3px white;
+    }
+    .option-grid-2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .option-grid-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 
+    .form-grid {
+      display: grid;
+      gap: 1rem;
+    }
+    .form-grid.two {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .form-grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .field {
+      display: grid;
+      gap: 0.4rem;
+    }
+    .field label {
+      font-size: 0.84rem;
+      font-weight: 600;
+      color: var(--primary);
+    }
+    .field small {
+      color: var(--gray-500);
+      font-size: 0.73rem;
+    }
+    input[type="text"], input[type="email"], input[type="url"], input[type="number"], textarea, select {
+      width: 100%;
+      padding: 0.9rem 1rem;
+      border-radius: 0.75rem;
+      border: 2px solid var(--gray-200);
+      font: inherit;
+      color: var(--primary);
+      background: #fff;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    textarea { min-height: 150px; resize: vertical; }
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: var(--secondary);
+      box-shadow: 0 0 0 4px rgba(0, 208, 180, 0.12);
+    }
+    input.error, textarea.error, select.error {
+      border-color: var(--error);
+      background: rgba(239, 68, 68, 0.03);
+    }
+    .error-text {
+      font-size: 0.75rem;
+      color: var(--error);
+      margin-top: 0.15rem;
+    }
+    .field-note {
+      font-size: 0.75rem;
+      color: var(--gray-500);
+    }
+    .scale-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 0.6rem;
+      margin-top: 0.75rem;
+    }
+    .scale-btn {
+      border: 2px solid var(--gray-200);
+      border-radius: 0.8rem;
+      background: #fff;
+      padding: 0.85rem 0.5rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: inherit;
+      text-align: center;
+    }
+    .scale-btn:hover { border-color: var(--secondary); background: rgba(0,208,180,0.05); }
+    .scale-btn.selected { border-color: var(--secondary); background: rgba(0,208,180,0.1); box-shadow: 0 6px 18px rgba(0,208,180,0.18); }
+    .scale-value { font-size: 1rem; font-weight: 700; }
+    .scale-label { font-size: 0.72rem; color: var(--gray-500); margin-top: 0.25rem; }
+
+    .percent-grid {
+      display: grid;
+      gap: 0.9rem;
+      margin-top: 0.5rem;
+    }
+    .percent-row {
+      display: grid;
+      grid-template-columns: minmax(140px, 1fr) 140px;
+      gap: 1rem;
+      align-items: center;
+    }
+    .percent-label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--primary);
+    }
+    .percent-total {
+      margin-top: 0.85rem;
+      padding: 0.9rem 1rem;
+      border-radius: 0.8rem;
+      background: var(--gray-50);
+      border: 1px solid var(--gray-200);
+      font-size: 0.84rem;
+      color: var(--gray-600);
+    }
+    .percent-total strong { color: var(--primary); }
+    .percent-total.invalid {
+      border-color: rgba(239, 68, 68, 0.24);
+      background: rgba(239, 68, 68, 0.05);
+      color: var(--error);
+    }
+
+    .actions {
+      margin-top: 1.4rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+    .actions-left, .actions-right {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .btn {
+      border: none;
+      border-radius: 0.8rem;
+      padding: 0.95rem 1.3rem;
+      font-family: inherit;
+      font-size: 0.92rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
     .btn-primary {
       background: var(--secondary);
       color: var(--primary);
     }
-
     .btn-primary:hover:not(:disabled) {
       background: var(--secondary-hover);
+      box-shadow: 0 8px 22px rgba(0, 208, 180, 0.26);
       transform: translateY(-1px);
     }
-
     .btn-secondary {
       background: var(--gray-100);
       color: var(--primary);
     }
-
     .btn-secondary:hover:not(:disabled) {
       background: var(--gray-200);
     }
-
+    .btn-ghost {
+      background: transparent;
+      color: var(--gray-600);
+      padding-left: 0;
+      padding-right: 0;
+    }
     .btn:disabled {
-      opacity: 0.5;
+      opacity: 0.55;
       cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none !important;
     }
-
-    .btn-group {
-      display: flex;
-      gap: 12px;
-      margin-top: 24px;
+    .muted {
+      color: var(--gray-500);
+      font-size: 0.82rem;
     }
+    .hidden { display: none !important; }
 
-    .question-header {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      margin-bottom: 16px;
+    .results-wrap {
+      display: grid;
+      gap: 1rem;
     }
-
-    .question-number {
-      background: var(--secondary);
-      color: var(--primary);
+    .results-header {
+      display: grid;
+      gap: 0.8rem;
+      margin-bottom: 0.4rem;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.45rem 0.75rem;
+      background: rgba(16, 185, 129, 0.12);
+      color: var(--success);
+      border-radius: 999px;
+      font-size: 0.76rem;
       font-weight: 700;
-      font-size: 0.75rem;
-      padding: 4px 12px;
-      border-radius: 20px;
-      white-space: nowrap;
+      width: fit-content;
     }
-
-    .question-text {
-      font-size: 1.125rem;
-      font-weight: 600;
+    .results-title {
+      font-size: 1.8rem;
+      line-height: 1.2;
+    }
+    .results-intro {
+      font-size: 0.96rem;
+      color: var(--gray-500);
+      max-width: 820px;
+    }
+    .summary-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 1rem;
+    }
+    .panel {
+      border: 1px solid var(--gray-200);
+      border-radius: 1rem;
+      padding: 1.1rem;
+      background: #fff;
+    }
+    .panel h3 {
+      font-size: 1rem;
+      margin-bottom: 0.6rem;
+    }
+    .diagnosis-card {
+      border-radius: 1rem;
+      padding: 1rem;
+      background: linear-gradient(135deg, rgba(0,208,180,0.12), rgba(15,23,42,0.04));
+      border: 1px solid rgba(0,208,180,0.18);
+      margin-bottom: 0.8rem;
+    }
+    .diagnosis-card.secondary {
+      background: linear-gradient(135deg, rgba(15,23,42,0.05), rgba(148,163,184,0.08));
+      border-color: rgba(148,163,184,0.22);
+    }
+    .diagnosis-label {
+      font-size: 0.76rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--gray-600);
+      margin-bottom: 0.35rem;
+    }
+    .diagnosis-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 0.35rem;
+    }
+    .diagnosis-copy {
+      font-size: 0.88rem;
+      color: var(--gray-600);
+    }
+    .score-list {
+      display: grid;
+      gap: 0.75rem;
+    }
+    .score-row {
+      display: grid;
+      gap: 0.4rem;
+    }
+    .score-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      font-size: 0.82rem;
+      color: var(--gray-600);
+    }
+    .score-meta strong {
       color: var(--primary);
-      flex: 1;
-      margin-right: 16px;
+      font-size: 0.88rem;
+    }
+    .score-track {
+      width: 100%;
+      height: 0.55rem;
+      background: var(--gray-200);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .score-fill {
+      height: 100%;
+      border-radius: 999px;
+      transition: width 0.35s ease;
+      background: linear-gradient(90deg, #f59e0b, #ef4444);
+    }
+    .score-fill.mid { background: linear-gradient(90deg, #f59e0b, #00d0b4); }
+    .score-fill.high { background: linear-gradient(90deg, #00d0b4, #0f172a); }
+    .service-cards {
+      display: grid;
+      gap: 0.8rem;
+    }
+    .service-card {
+      border-radius: 1rem;
+      overflow: hidden;
+      border: 1px solid var(--gray-200);
+      background: #fff;
+    }
+    .service-head {
+      padding: 1rem;
+      color: #fff;
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .bg-accent { background: linear-gradient(135deg, #00d0b4, #0f172a); }
+    .bg-blue { background: linear-gradient(135deg, #0f172a, #1e3a5f); }
+    .bg-purple { background: linear-gradient(135deg, #0f172a, #3b1f61); }
+    .service-name { font-size: 1rem; font-weight: 700; }
+    .service-sub { font-size: 0.79rem; opacity: 0.88; margin-top: 0.25rem; line-height: 1.45; }
+    .best-pill {
+      background: rgba(255,255,255,0.2);
+      border-radius: 999px;
+      padding: 0.35rem 0.55rem;
+      font-size: 0.7rem;
+      font-weight: 700;
+      white-space: nowrap;
+      align-self: flex-start;
+    }
+    .service-body { padding: 1rem; }
+    .service-why { font-size: 0.86rem; color: var(--gray-600); }
+    .callout {
+      border-radius: 1rem;
+      padding: 1rem;
+      background: var(--gray-50);
+      border: 1px solid var(--gray-200);
+      font-size: 0.88rem;
+      color: var(--gray-600);
+    }
+    .bullets {
+      margin-top: 0.75rem;
+      padding-left: 1.1rem;
+      display: grid;
+      gap: 0.45rem;
+      color: var(--gray-600);
+      font-size: 0.88rem;
+    }
+    .inline-code {
+      background: var(--gray-100);
+      border-radius: 0.35rem;
+      padding: 0.15rem 0.35rem;
+      font-size: 0.82rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      color: var(--primary-soft);
     }
 
-    .voice-controls {
+    .submitting {
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 24px;
-      background: var(--gray-50);
-      border-radius: 12px;
-      margin-bottom: 16px;
-    }
-
-    .record-btn {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      border: none;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
       justify-content: center;
-      transition: all 0.2s;
-      position: relative;
-    }
-
-    .record-btn.idle {
-      background: var(--secondary);
-    }
-
-    .record-btn.idle:hover {
-      transform: scale(1.05);
-      background: var(--secondary-hover);
-    }
-
-    .record-btn.recording {
-      background: var(--error);
-      animation: pulse 1.5s infinite;
-    }
-
-    .record-btn.transcribing {
-      background: var(--gray-300);
-      cursor: wait;
-    }
-
-    @keyframes pulse {
-      0%, 100% {
-        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
-      }
-      50% {
-        box-shadow: 0 0 0 20px rgba(239, 68, 68, 0);
-      }
-    }
-
-    .record-btn svg {
-      width: 32px;
-      height: 32px;
-    }
-
-    .record-btn.idle svg {
-      fill: var(--primary);
-    }
-
-    .record-btn.recording svg,
-    .record-btn.transcribing svg {
-      fill: white;
-    }
-
-    .voice-status {
-      margin-top: 12px;
-      font-size: 0.875rem;
-      color: var(--gray-500);
-    }
-
-    .voice-status.recording {
-      color: var(--error);
-      font-weight: 600;
-    }
-
-    .transcription-area {
-      width: 100%;
-      min-height: 120px;
-      padding: 16px;
-      font-family: 'Montserrat', sans-serif;
-      font-size: 1rem;
-      border: 2px solid var(--gray-200);
-      border-radius: 8px;
-      resize: vertical;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-
-    .transcription-area:focus {
-      outline: none;
-      border-color: var(--secondary);
-      box-shadow: 0 0 0 3px var(--secondary-light);
-    }
-
-    .transcription-area::placeholder {
-      color: var(--gray-400);
-    }
-
-    .success-screen {
+      padding: 4rem 1rem;
       text-align: center;
-      padding: 60px 20px;
+      gap: 1rem;
     }
-
-    .success-icon {
-      width: 80px;
-      height: 80px;
-      background: var(--secondary);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 24px;
-    }
-
-    .success-icon svg {
-      width: 40px;
-      height: 40px;
-      fill: var(--primary);
-    }
-
-    .success-screen h2 {
-      font-size: 1.5rem;
-      margin-bottom: 12px;
-    }
-
-    .success-screen p {
-      color: var(--gray-500);
-    }
-
-    .loading-spinner {
-      width: 24px;
-      height: 24px;
-      border: 3px solid var(--gray-200);
+    .spinner {
+      width: 3rem;
+      height: 3rem;
+      border: 4px solid var(--gray-200);
       border-top-color: var(--secondary);
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
+      border-radius: 999px;
+      animation: spin 0.9s linear infinite;
     }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
-    }
-
-    .skip-btn {
-      background: none;
-      border: none;
+    .footer {
+      text-align: center;
+      margin-top: 1rem;
       color: var(--gray-400);
-      font-family: 'Montserrat', sans-serif;
-      font-size: 0.875rem;
-      cursor: pointer;
-      padding: 8px;
-      transition: color 0.2s;
+      font-size: 0.75rem;
     }
 
-    .skip-btn:hover {
-      color: var(--gray-600);
+    @media (max-width: 980px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar { position: static; }
+      .summary-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 760px) {
+      .header h1 { font-size: 1.7rem; }
+      .card { padding: 1.1rem; }
+      .form-grid.two, .form-grid.three, .option-grid-2, .option-grid-3, .summary-grid { grid-template-columns: 1fr; }
+      .scale-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.45rem; }
+      .percent-row { grid-template-columns: 1fr; gap: 0.5rem; }
+      .actions { flex-direction: column; align-items: stretch; }
+      .actions-left, .actions-right { width: 100%; justify-content: space-between; }
+      .btn-primary, .btn-secondary { flex: 1; }
     }
   </style>
 </head>
 <body>
-  <div id="root"></div>
+  <div class="assessment">
+    <div class="container">
+      <div class="header">
+        <h1>GTM Diagnostics Outbound Assessment</h1>
+        <p>
+          A discovery-grade audit of your outbound motion — targeting, signals, research,
+          messaging, sequence design, follow-up, and operating rhythm.
+        </p>
+      </div>
 
-  <script type="text/babel">
-    const { useState, useRef, useEffect } = React;
+      <div class="layout">
+        <aside class="sidebar" id="sidebar">
+          <h2>Assessment Overview</h2>
+          <p>
+            This audit is intentionally rigorous. It is designed to surface the gaps behind your current prospecting performance.
+          </p>
+          <ul class="section-list" id="sectionList"></ul>
+        </aside>
 
-    // Configuration
-    const WEBHOOK_PROXY_URL = 'https://mute-dust-db99.mike-2b4.workers.dev'; 
-    const WORKER_URL = 'https://shrill-moon-ee36.mike-2b4.workers.dev'; 
-    
-    const BLOCKED_EMAIL_DOMAINS = [
-      'gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'aol.com',
-      'icloud.com', 'mail.com', 'protonmail.com', 'zoho.com', 'yandex.com',
-      'gmx.com', 'live.com', 'msn.com', 'inbox.com', 'fastmail.com',
-      'tutanota.com', 'hushmail.com', 'mailfence.com', 'disroot.org',
-      'riseup.net', 'me.com', 'mac.com', 'googlemail.com', 'yahoo.co.uk',
-      'hotmail.co.uk', 'live.co.uk', 'btinternet.com', 'virginmedia.com',
-      'sky.com', 'talktalk.net', 'qq.com', '163.com', '126.com', 'sina.com',
-      'rediffmail.com', 'libero.it', 'web.de', 'gmx.de', 't-online.de',
-      'orange.fr', 'wanadoo.fr', 'laposte.net', 'free.fr', 'sfr.fr'
-    ];
-
-    const VOICE_QUESTIONS = [
-      "How is your ICP currently defined in practice? Please describe the concrete firmographic, technographic, and buyer-role criteria you actively use for targeting.",
-      "How does your team decide which accounts to work on each day? Please describe the exact logic, filters, data points, or rules used to prioritize accounts.",
-      "Describe your outbound prospecting workflow from: list creation → first touch → follow-up → qualification → deal creation. What are the exact steps involved today?",
-      "Which signals currently influence your outbound prioritization (e.g. website visits, content engagement, intent data, job changes, funding, tech changes, product usage, etc.), and how are these signals operationally used?",
-      "When a high-intent signal appears, what actually happens next? Who is notified, how fast do they act, and what commonly causes delays or dropped follow-ups?",
-      "Which channels and systems are actively used in your outbound motion today (email, LinkedIn, CRM, enrichment tools, automation, task queues, alerts, etc.) and how well are they connected?",
-      "Roughly how do reps spend their time across: Research - Prospecting - Follow-up - Admin / CRM - Deal work. Where do you see the biggest inefficiencies or time drains?",
-      "How are leads and accounts currently scored, routed, and prioritized? What criteria determine who gets worked first, and what happens to low-engagement accounts?",
-      "How are your lifecycle stages (Lead → MQL → SQL → Opportunity) defined today, and how strictly are they enforced in daily prospecting and deal progression?",
-      "If you needed to double outbound-driven pipeline in the next 90 days, which parts of your current outbound process would scale smoothly, and which parts would likely fail first?"
-    ];
-
-
-    // Icons
-    const MicIcon = () => (
-      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V5zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
-      </svg>
-    );
-
-    const StopIcon = () => (
-      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <rect x="6" y="6" width="12" height="12" rx="2"/>
-      </svg>
-    );
-
-    const LoadingIcon = () => (
-      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" className="loading-spinner">
-        <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" fill="none" strokeDasharray="31.4 31.4"/>
-      </svg>
-    );
-
-    const CheckIcon = () => (
-      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-      </svg>
-    );
-
-    // Validate business email
-    const isBusinessEmail = (email) => {
-      const domain = email.toLowerCase().split('@')[1];
-      return domain && !BLOCKED_EMAIL_DOMAINS.includes(domain);
-    };
-
-    // Contact Info Form Component
-    const ContactForm = ({ data, onChange, errors }) => {
-      return (
-        <div className="card">
-          <h2 style={{ marginBottom: '24px', fontSize: '1.25rem' }}>Contact Information</h2>
-          
-          <div className="form-row">
-            <div className="form-group">
-              <label className="form-label">
-                First Name <span>*</span>
-              </label>
-              <input
-                type="text"
-                className={`form-input ${errors.firstName ? 'error' : ''}`}
-                value={data.firstName}
-                onChange={(e) => onChange('firstName', e.target.value)}
-                placeholder="John"
-              />
-              {errors.firstName && <div className="error-message">{errors.firstName}</div>}
-            </div>
-            
-            <div className="form-group">
-              <label className="form-label">
-                Last Name <span>*</span>
-              </label>
-              <input
-                type="text"
-                className={`form-input ${errors.lastName ? 'error' : ''}`}
-                value={data.lastName}
-                onChange={(e) => onChange('lastName', e.target.value)}
-                placeholder="Doe"
-              />
-              {errors.lastName && <div className="error-message">{errors.lastName}</div>}
-            </div>
-          </div>
-
-          <div className="form-group">
-            <label className="form-label">
-              Business Email <span>*</span>
-            </label>
-            <input
-              type="email"
-              className={`form-input ${errors.email ? 'error' : ''}`}
-              value={data.email}
-              onChange={(e) => onChange('email', e.target.value)}
-              placeholder="john@company.com"
-            />
-            {errors.email && <div className="error-message">{errors.email}</div>}
-          </div>
-
-          <div className="form-group">
-            <label className="form-label">
-              Company Website <span>*</span>
-            </label>
-            <input
-              type="url"
-              className={`form-input ${errors.website ? 'error' : ''}`}
-              value={data.website}
-              onChange={(e) => onChange('website', e.target.value)}
-              placeholder="https://company.com"
-            />
-            {errors.website && <div className="error-message">{errors.website}</div>}
-          </div>
-
-          <div className="form-group">
-            <label className="form-label">
-              Role <span>*</span>
-            </label>
-            <input
-              type="text"
-              className={`form-input ${errors.role ? 'error' : ''}`}
-              value={data.role}
-              onChange={(e) => onChange('role', e.target.value)}
-              placeholder="VP of Sales"
-            />
-            {errors.role && <div className="error-message">{errors.role}</div>}
-          </div>
-        </div>
-      );
-    };
-
-    // Voice Question Component
-    const VoiceQuestion = ({ question, questionIndex, total, answer, onAnswerChange, audioStream }) => {
-      const [isRecording, setIsRecording] = useState(false);
-      const [isTranscribing, setIsTranscribing] = useState(false);
-      const [status, setStatus] = useState('Click to record your answer');
-      const mediaRecorderRef = useRef(null);
-      const chunksRef = useRef([]);
-
-      // Get supported audio mimeType
-      const getSupportedMimeType = () => {
-        const types = [
-          'audio/webm;codecs=opus',
-          'audio/webm',
-          'audio/mp4',
-          'audio/ogg;codecs=opus',
-          'audio/wav',
-          ''  // Empty string = browser default
-        ];
-        for (const type of types) {
-          if (type === '' || MediaRecorder.isTypeSupported(type)) {
-            return type;
-          }
-        }
-        return '';
-      };
-
-      const getFileExtension = (mimeType) => {
-        if (mimeType.includes('webm')) return 'webm';
-        if (mimeType.includes('mp4')) return 'mp4';
-        if (mimeType.includes('ogg')) return 'ogg';
-        if (mimeType.includes('wav')) return 'wav';
-        return 'webm'; // default
-      };
-
-      const startRecording = async () => {
-        if (!audioStream) {
-          setStatus('Microphone not available. Please refresh and try again.');
-          return;
-        }
-
-        try {
-          const mimeType = getSupportedMimeType();
-          const options = mimeType ? { mimeType } : {};
-          
-          mediaRecorderRef.current = new MediaRecorder(audioStream, options);
-          chunksRef.current = [];
-
-          mediaRecorderRef.current.ondataavailable = (e) => {
-            if (e.data.size > 0) {
-              chunksRef.current.push(e.data);
-            }
-          };
-
-          mediaRecorderRef.current.onstop = async () => {
-            const actualMimeType = mediaRecorderRef.current.mimeType || 'audio/webm';
-            const audioBlob = new Blob(chunksRef.current, { type: actualMimeType });
-            const extension = getFileExtension(actualMimeType);
-            await transcribeAudio(audioBlob, extension);
-          };
-
-          mediaRecorderRef.current.start();
-          setIsRecording(true);
-          setStatus('Recording... Click to stop');
-        } catch (err) {
-          console.error('Error starting recording:', err);
-          setStatus('Could not start recording. Please try again or type your answer.');
-        }
-      };
-
-      const stopRecording = () => {
-        if (mediaRecorderRef.current && isRecording) {
-          mediaRecorderRef.current.stop();
-          setIsRecording(false);
-          setStatus('Processing...');
-        }
-      };
-
-      const transcribeAudio = async (audioBlob, extension = 'webm') => {
-        if (!WORKER_URL || WORKER_URL === 'YOUR_CLOUDFLARE_WORKER_URL_HERE') {
-          setStatus('Transcription service not configured. Please contact the administrator.');
-          return;
-        }
-
-        setIsTranscribing(true);
-        setStatus('Transcribing...');
-
-        try {
-          const formData = new FormData();
-          formData.append('file', audioBlob, `recording.${extension}`);
-
-          const response = await fetch(WORKER_URL, {
-            method: 'POST',
-            body: formData
-          });
-
-          if (!response.ok) {
-            throw new Error('Transcription failed');
-          }
-
-          const data = await response.json();
-          onAnswerChange(data.text);
-          setStatus('Transcription complete. You can edit below or re-record.');
-        } catch (err) {
-          console.error('Transcription error:', err);
-          setStatus('Transcription failed. Please try again or type your answer.');
-        } finally {
-          setIsTranscribing(false);
-        }
-      };
-
-      const handleRecordClick = () => {
-        if (isTranscribing) return;
-        if (isRecording) {
-          stopRecording();
-        } else {
-          startRecording();
-        }
-      };
-
-      const getButtonClass = () => {
-        if (isTranscribing) return 'record-btn transcribing';
-        if (isRecording) return 'record-btn recording';
-        return 'record-btn idle';
-      };
-
-      return (
-        <div className="card">
-          <div className="question-header">
-            <div className="question-text">{question}</div>
-            <div className="question-number">
-              {questionIndex + 1} / {total}
-            </div>
-          </div>
-
-          <div className="voice-controls">
-            <button
-              className={getButtonClass()}
-              onClick={handleRecordClick}
-              disabled={isTranscribing}
-              type="button"
-            >
-              {isTranscribing ? (
-                <div className="loading-spinner" style={{ borderTopColor: 'white' }}></div>
-              ) : isRecording ? (
-                <StopIcon />
-              ) : (
-                <MicIcon />
-              )}
-            </button>
-            <div className={`voice-status ${isRecording ? 'recording' : ''}`}>
-              {status}
-            </div>
-          </div>
-
-          <textarea
-            className="transcription-area"
-            value={answer}
-            onChange={(e) => onAnswerChange(e.target.value)}
-            placeholder="Your transcribed answer will appear here. You can also type directly or edit the transcription."
-          />
-        </div>
-      );
-    };
-
-    // Main App Component
-    const App = () => {
-      const [step, setStep] = useState('contact'); // contact, questions, submitting, success
-      const [contactData, setContactData] = useState({
-        firstName: '',
-        lastName: '',
-        email: '',
-        website: '',
-        role: ''
-      });
-      const [contactErrors, setContactErrors] = useState({});
-      const [currentQuestion, setCurrentQuestion] = useState(0);
-      const [answers, setAnswers] = useState(Array(VOICE_QUESTIONS.length).fill(''));
-      const [isSubmitting, setIsSubmitting] = useState(false);
-      const audioStreamRef = useRef(null);
-
-      const validateContact = () => {
-        const errors = {};
-        
-        if (!contactData.firstName.trim()) {
-          errors.firstName = 'First name is required';
-        }
-        
-        if (!contactData.lastName.trim()) {
-          errors.lastName = 'Last name is required';
-        }
-        
-        if (!contactData.email.trim()) {
-          errors.email = 'Email is required';
-        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactData.email)) {
-          errors.email = 'Please enter a valid email address';
-        } else if (!isBusinessEmail(contactData.email)) {
-          errors.email = 'Please use a business email address';
-        }
-        
-        if (!contactData.website.trim()) {
-          errors.website = 'Company website is required';
-        } else if (!/^https?:\/\/.+\..+/.test(contactData.website)) {
-          errors.website = 'Please enter a valid URL (e.g., https://company.com)';
-        }
-        
-        if (!contactData.role.trim()) {
-          errors.role = 'Role is required';
-        }
-
-        setContactErrors(errors);
-        return Object.keys(errors).length === 0;
-      };
-
-      const handleContactChange = (field, value) => {
-        setContactData(prev => ({ ...prev, [field]: value }));
-        if (contactErrors[field]) {
-          setContactErrors(prev => ({ ...prev, [field]: null }));
-        }
-      };
-
-      const handleContinueToQuestions = async () => {
-        if (validateContact()) {
-          // Check if MediaRecorder is supported
-          if (!window.MediaRecorder) {
-            alert('Voice recording is not supported on this browser. Please use Chrome, Firefox, or Safari 14.5+.');
-            return;
-          }
-
-          // Request microphone permission once
-          try {
-            const stream = await navigator.mediaDevices.getUserMedia({ 
-              audio: {
-                echoCancellation: true,
-                noiseSuppression: true,
-              } 
-            });
-            audioStreamRef.current = stream;
-            setStep('questions');
-          } catch (err) {
-            console.error('Microphone error:', err);
-            if (err.name === 'NotAllowedError') {
-              alert('Microphone access was denied. Please allow microphone access in your browser settings and try again.');
-            } else if (err.name === 'NotFoundError') {
-              alert('No microphone found. Please connect a microphone and try again.');
-            } else {
-              alert('Could not access microphone. Please check your browser settings and try again.');
-            }
-          }
-        }
-      };
-
-      const handleAnswerChange = (answer) => {
-        const newAnswers = [...answers];
-        newAnswers[currentQuestion] = answer;
-        setAnswers(newAnswers);
-      };
-
-      const handleNext = () => {
-        setCurrentQuestion(prev => Math.min(VOICE_QUESTIONS.length - 1, prev + 1));
-      };
-
-      const handlePrevious = () => {
-        setCurrentQuestion(prev => Math.max(0, prev - 1));
-      };
-
-      const generatePlainText = () => {
-        let text = '=== CONTACT INFORMATION ===\n\n';
-        text += `First Name: ${contactData.firstName}\n`;
-        text += `Last Name: ${contactData.lastName}\n`;
-        text += `Email: ${contactData.email}\n`;
-        text += `Company Website: ${contactData.website}\n`;
-        text += `Role: ${contactData.role}\n\n`;
-        text += '=== SURVEY RESPONSES ===\n\n';
-        
-        VOICE_QUESTIONS.forEach((question, index) => {
-          text += `Question ${index + 1}: ${question}\n`;
-          text += `Response: ${answers[index] || '(No response provided)'}\n\n`;
-        });
-
-        return text;
-      };
-
-      const handleSubmit = async () => {
-        setIsSubmitting(true);
-        setStep('submitting');
-
-        // Clean up audio stream safely
-        try {
-          if (audioStreamRef.current) {
-            audioStreamRef.current.getTracks().forEach(track => track.stop());
-            audioStreamRef.current = null;
-          }
-        } catch (e) {
-          console.log('Audio cleanup error (non-critical):', e);
-        }
-
-        const plainText = generatePlainText();
-        
-        const payload = {
-          contact: contactData,
-          responses: VOICE_QUESTIONS.map((question, index) => ({
-            question,
-            response: answers[index] || ''
-          })),
-          plainText,
-          submittedAt: new Date().toISOString()
-        };
-
-        // Send data to webhook proxy
-        fetch(WEBHOOK_PROXY_URL, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(payload)
-        }).then(() => {
-          setStep('success');
-          setIsSubmitting(false);
-        }).catch(e => {
-          console.log('Webhook error:', e);
-          setStep('success'); // Still show success - data likely sent
-          setIsSubmitting(false);
-        });
-      };
-
-      const progress = step === 'contact' 
-        ? 0 
-        : step === 'questions' 
-          ? ((currentQuestion + 1) / VOICE_QUESTIONS.length) * 100
-          : 100;
-
-      return (
-        <div className="container">
-          <div className="header">
-            <h1>GTM Diagnostics Outbound Assessment</h1>
-            <p>Identify gaps in your Outbound Process</p>
-          </div>
-
-          <div className="progress-bar">
-            <div className="progress-fill" style={{ width: `${progress}%` }}></div>
-          </div>
-
-          {step === 'contact' && (
-            <>
-              <ContactForm
-                data={contactData}
-                onChange={handleContactChange}
-                errors={contactErrors}
-              />
-
-              <div className="btn-group" style={{ justifyContent: 'flex-end' }}>
-                <button 
-                  className="btn btn-primary"
-                  onClick={handleContinueToQuestions}
-                >
-                  Continue to Questions →
-                </button>
+        <main>
+          <div class="card" id="questionCard">
+            <div class="progress-wrap">
+              <div class="progress-meta">
+                <span id="progressMeta">Question 1</span>
+                <span id="sectionMeta">Section 1</span>
               </div>
-            </>
-          )}
-
-          {step === 'questions' && (
-            <>
-              <VoiceQuestion
-                question={VOICE_QUESTIONS[currentQuestion]}
-                questionIndex={currentQuestion}
-                total={VOICE_QUESTIONS.length}
-                answer={answers[currentQuestion]}
-                onAnswerChange={handleAnswerChange}
-                audioStream={audioStreamRef.current}
-              />
-
-              <div className="btn-group">
-                <button
-                  className="btn btn-secondary"
-                  onClick={handlePrevious}
-                  disabled={currentQuestion === 0}
-                >
-                  ← Previous
-                </button>
-                
-                <div style={{ flex: 1 }}></div>
-
-                {currentQuestion < VOICE_QUESTIONS.length - 1 ? (
-                  <button
-                    className="btn btn-primary"
-                    onClick={handleNext}
-                  >
-                    Next →
-                  </button>
-                ) : (
-                  <button
-                    className="btn btn-primary"
-                    onClick={handleSubmit}
-                  >
-                    Submit Survey ✓
-                  </button>
-                )}
-              </div>
-            </>
-          )}
-
-          {step === 'submitting' && (
-            <div className="card">
-              <div className="success-screen">
-                <div className="loading-spinner" style={{ width: '60px', height: '60px', margin: '0 auto 24px' }}></div>
-                <h2>Submitting your responses...</h2>
-                <p>Please wait while we process your survey.</p>
-              </div>
+              <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
             </div>
-          )}
 
-          {step === 'success' && (
-            <div className="card">
-              <div className="success-screen">
-                <div className="success-icon">
-                  <CheckIcon />
+            <div id="questionScreen">
+              <div class="section-tag" id="sectionTag">Section</div>
+              <h2 class="question-title" id="questionTitle"></h2>
+              <p class="question-description" id="questionDescription"></p>
+              <div id="questionContent"></div>
+
+              <div class="actions">
+                <div class="actions-left">
+                  <button class="btn btn-ghost" id="saveMdBtn" type="button">Download current answers (.md)</button>
                 </div>
-                <h2>Thank You!</h2>
-                <p>Your survey has been submitted successfully. We'll be in touch soon.</p>
+                <div class="actions-right">
+                  <button class="btn btn-secondary" id="backBtn" type="button">← Back</button>
+                  <button class="btn btn-primary" id="nextBtn" type="button">Next →</button>
+                </div>
               </div>
             </div>
-          )}
-        </div>
-      );
+
+            <div id="submittingScreen" class="hidden">
+              <div class="submitting">
+                <div class="spinner"></div>
+                <h2>Submitting your assessment…</h2>
+                <p class="muted">Packaging all answers, scores, markdown summary, and email instructions for delivery.</p>
+              </div>
+            </div>
+
+            <div id="resultsScreen" class="hidden"></div>
+          </div>
+
+          <p class="footer">GTM Diagnostics • Prospecting Playbook Assessment</p>
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const CONFIG = {
+      submissionWebhookUrl: "https://mute-dust-db99.mike-2b4.workers.dev",
+      useNoCors: true,
+      internalRecipient: "mike@gtmdiagnostics.com",
+      assessmentName: "GTM Diagnostics Outbound Assessment",
+      blockedEmailDomains: [
+        'gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'aol.com',
+        'icloud.com', 'mail.com', 'protonmail.com', 'zoho.com', 'yandex.com',
+        'gmx.com', 'live.com', 'msn.com', 'inbox.com', 'fastmail.com',
+        'tutanota.com', 'hushmail.com', 'mailfence.com', 'disroot.org',
+        'riseup.net', 'me.com', 'mac.com', 'googlemail.com', 'yahoo.co.uk',
+        'hotmail.co.uk', 'live.co.uk', 'btinternet.com', 'virginmedia.com',
+        'sky.com', 'talktalk.net', 'qq.com', '163.com', '126.com', 'sina.com',
+        'rediffmail.com', 'libero.it', 'web.de', 'gmx.de', 't-online.de',
+        'orange.fr', 'wanadoo.fr', 'laposte.net', 'free.fr', 'sfr.fr'
+      ]
     };
 
-    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    const SERVICES = {
+      prospecting: {
+        name: "Prospecting Playbook",
+        color: "bg-blue",
+        description: "A repeatable outbound system: ICP precision, research, channel-specific messaging, sequence design, follow-up tracks, and rep execution discipline."
+      },
+      signal: {
+        name: "Signal-Based GTM",
+        color: "bg-accent",
+        description: "A signal-driven operating system that turns fit, intent, engagement, and timing signals into routed action, prioritization logic, and pipeline." 
+      },
+      abm: {
+        name: "ABM Program",
+        color: "bg-purple",
+        description: "A coordinated account-based motion for enterprise growth: tiering, personalization, account orchestration, buying committee activation, and sales-marketing alignment."
+      }
+    };
+
+    const SECTION_ORDER = [
+      { id: 'contact', name: 'Contact & Company Context', short: 'Contact' },
+      { id: 'team', name: 'Revenue Team Overview', short: 'Team' },
+      { id: 'pipeline', name: 'Pipeline Mix & Ownership', short: 'Pipeline' },
+      { id: 'targeting', name: 'ICP, Targeting & Disqualification', short: 'Targeting' },
+      { id: 'signals', name: 'Signals & Prioritization', short: 'Signals' },
+      { id: 'research', name: 'Account Research System', short: 'Research' },
+      { id: 'messaging', name: 'Messaging by Channel', short: 'Messaging' },
+      { id: 'sequence', name: 'Sequence & Channel Orchestration', short: 'Sequence' },
+      { id: 'followup', name: 'Follow-Up & Objection Handling', short: 'Follow-up' },
+      { id: 'management', name: 'Operating Rhythm & Management', short: 'Management' },
+      { id: 'open', name: 'Bottlenecks, Readiness & Open Discovery', short: 'Open' }
+    ];
+
+    const QUESTIONS = [
+      {
+        id: 'contact_info',
+        section: 'contact',
+        type: 'contact',
+        title: 'Tell us who is completing the assessment.',
+        description: 'We use this to personalize the results and include the respondent copy in the submission payload.'
+      },
+      {
+        id: 'company_type',
+        section: 'team',
+        type: 'single',
+        title: 'Which best describes your company?',
+        description: 'This helps us align the assessment with the right type of outbound motion.',
+        options: [
+          { value: 'b2b-saas', label: 'B2B SaaS', icon: '💻' },
+          { value: 'tech-services', label: 'Technology / services', icon: '🛠️' },
+          { value: 'ai', label: 'AI / data / infrastructure', icon: '🤖' },
+          { value: 'professional-services', label: 'Professional services', icon: '🧭' },
+          { value: 'other', label: 'Other', icon: '📦' }
+        ]
+      },
+      {
+        id: 'acv_band',
+        section: 'team',
+        type: 'single',
+        title: 'What is your typical average contract value?',
+        description: 'Deal size and complexity heavily influence the right outbound structure.',
+        options: [
+          { value: 'lt15', label: 'Under €15k', icon: '💶' },
+          { value: '15-30', label: '€15k–30k', icon: '💶' },
+          { value: '30-75', label: '€30k–75k', icon: '💶' },
+          { value: '75-150', label: '€75k–150k', icon: '💶' },
+          { value: '150plus', label: '€150k+', icon: '💶' }
+        ]
+      },
+      {
+        id: 'stakeholder_complexity',
+        section: 'team',
+        type: 'single',
+        title: 'How many stakeholders are typically involved in a deal?',
+        description: 'Multi-stakeholder deals usually require stronger targeting, buying-committee logic, and coordinated follow-up.',
+        options: [
+          { value: 'single', label: 'Usually one buyer', icon: '1️⃣' },
+          { value: '2-3', label: 'Usually 2–3 stakeholders', icon: '2️⃣' },
+          { value: '4-6', label: 'Usually 4–6 stakeholders', icon: '4️⃣' },
+          { value: '6plus', label: 'Usually 6+ stakeholders', icon: '6️⃣' }
+        ]
+      },
+      {
+        id: 'sales_org_size',
+        section: 'team',
+        type: 'numberGroup',
+        title: 'Give us a quick overview of the commercial team.',
+        description: 'We want the full picture — not just who prospects.',
+        fields: [
+          { key: 'salesDepartment', label: 'Total sales department size', min: 0 },
+          { key: 'sdrBdrCount', label: 'Number of SDRs / BDRs', min: 0 },
+          { key: 'aeCount', label: 'Number of AEs', min: 0 },
+          { key: 'salesLeadershipCount', label: 'Sales managers / leaders', min: 0 }
+        ]
+      },
+      {
+        id: 'prospecting_staffing',
+        section: 'team',
+        type: 'multi',
+        title: 'How is prospecting currently staffed?',
+        description: 'Select every group that actively contributes to pipeline generation.',
+        minSelections: 1,
+        options: [
+          { value: 'sdr-led', label: 'SDR-led', icon: '🎯' },
+          { value: 'ae-led', label: 'AE-led', icon: '📞' },
+          { value: 'founder-led', label: 'Founder-led', icon: '🚀' },
+          { value: 'sales-leader-led', label: 'Sales leader-led', icon: '🧠' },
+          { value: 'marketing-assisted', label: 'Marketing-assisted', icon: '📣' },
+          { value: 'outsourced', label: 'Outsourced support', icon: '🤝' }
+        ]
+      },
+      {
+        id: 'marketing_support',
+        section: 'team',
+        type: 'single',
+        title: 'Does marketing actively contribute to pipeline generation?',
+        description: 'We are looking for actual support to pipeline creation, not just brand activity.',
+        options: [
+          { value: 'strong', label: 'Yes — strong support', icon: '✅' },
+          { value: 'limited', label: 'Yes — limited support', icon: '➖' },
+          { value: 'none', label: 'No real support', icon: '❌' },
+          { value: 'unsure', label: 'Not sure / inconsistent', icon: '❔' }
+        ]
+      },
+      {
+        id: 'team_structure',
+        section: 'team',
+        type: 'multi',
+        title: 'How is the team organized?',
+        description: 'Select all that apply today.',
+        minSelections: 1,
+        options: [
+          { value: 'region', label: 'By region', icon: '🌍' },
+          { value: 'industry', label: 'By industry', icon: '🏭' },
+          { value: 'segment', label: 'By segment / size', icon: '📊' },
+          { value: 'product', label: 'By product / solution', icon: '🧩' },
+          { value: 'named-accounts', label: 'By named accounts', icon: '📋' },
+          { value: 'pooled', label: 'Mostly pooled / flexible', icon: '🔄' }
+        ]
+      },
+      {
+        id: 'pipeline_mix',
+        section: 'pipeline',
+        type: 'percentGroup',
+        title: 'Roughly what percentage of new pipeline comes from each source?',
+        description: 'Your total should add up to 100%. This helps us understand how much you rely on self-sourced prospecting versus other sources.',
+        fields: [
+          { key: 'selfSourced', label: 'Self-sourced outbound' },
+          { key: 'mqlInbound', label: 'MQL / inbound' },
+          { key: 'partnerReferral', label: 'Partner / referral' },
+          { key: 'expansion', label: 'Expansion / existing accounts' },
+          { key: 'other', label: 'Other' }
+        ]
+      },
+      {
+        id: 'mql_owner',
+        section: 'pipeline',
+        type: 'single',
+        title: 'Who owns first follow-up on MQLs today?',
+        description: 'This often exposes handoff friction and missed urgency.',
+        options: [
+          { value: 'sdr', label: 'SDR / BDR', icon: '🎯' },
+          { value: 'ae', label: 'AE', icon: '📞' },
+          { value: 'inbound-team', label: 'Dedicated inbound team', icon: '📥' },
+          { value: 'round-robin', label: 'Round robin / shared pool', icon: '🔁' },
+          { value: 'unclear', label: 'Unclear / inconsistent', icon: '❔' }
+        ],
+        condition: answers => pctValue(answers.pipeline_mix, 'mqlInbound') > 0
+      },
+      {
+        id: 'mql_speed',
+        section: 'pipeline',
+        type: 'single',
+        title: 'How quickly are MQLs typically worked?',
+        description: 'Fast response matters most when MQLs include high-intent behavior.',
+        options: [
+          { value: 'lt1h', label: 'Within 1 hour', icon: '⚡' },
+          { value: 'same-day', label: 'Same day', icon: '📅' },
+          { value: '1-2days', label: 'Within 1–2 days', icon: '🕒' },
+          { value: '3plus', label: '3+ days later', icon: '🐢' },
+          { value: 'inconsistent', label: 'Inconsistent', icon: '🎲' }
+        ],
+        condition: answers => pctValue(answers.pipeline_mix, 'mqlInbound') > 0
+      },
+      {
+        id: 'mql_vs_outbound_priority',
+        section: 'pipeline',
+        type: 'single',
+        title: 'How are self-sourced outbound accounts prioritized versus MQLs?',
+        description: 'We want to understand whether the team works from a clear, shared prioritization rule.',
+        options: [
+          { value: 'mql-first', label: 'MQLs almost always come first', icon: '📥' },
+          { value: 'outbound-first', label: 'Self-sourced outbound comes first', icon: '📤' },
+          { value: 'signal-based', label: 'Depends on signal strength / urgency', icon: '📡' },
+          { value: 'rep-discretion', label: 'Mostly rep discretion', icon: '🧍' },
+          { value: 'no-rule', label: 'No clear rule', icon: '❌' }
+        ]
+      },
+      {
+        id: 'shared_targeting_logic',
+        section: 'pipeline',
+        type: 'single',
+        title: 'Do Sales and Marketing work from a shared targeting or prioritization logic?',
+        description: 'This becomes more important when marketing influences pipeline or account engagement.',
+        options: [
+          { value: 'yes', label: 'Yes — clearly shared', icon: '🤝' },
+          { value: 'partial', label: 'Partially aligned', icon: '🧩' },
+          { value: 'no', label: 'No — mostly separate', icon: '🚧' },
+          { value: 'unsure', label: 'Not sure', icon: '❔' }
+        ],
+        condition: answers => answers.marketing_support !== 'none'
+      },
+      {
+        id: 'lifecycle_defined',
+        section: 'pipeline',
+        type: 'scale',
+        title: 'How clearly are lifecycle stages defined from lead to opportunity?',
+        description: 'This affects routing, urgency, and handoff discipline across teams.',
+        labels: ['Very weak', 'Weak', 'Mixed', 'Strong', 'Very strong']
+      },
+      {
+        id: 'icp_clarity',
+        section: 'targeting',
+        type: 'single',
+        title: 'How clearly defined is your ICP in practice?',
+        description: 'We care about how it is used in daily targeting — not just whether there is a slide somewhere.',
+        options: [
+          { value: 'very-clear', label: 'Very clear and actively used', icon: '🎯' },
+          { value: 'mostly-clear', label: 'Mostly clear, with some ambiguity', icon: '🧭' },
+          { value: 'tribal', label: 'Mostly tribal knowledge', icon: '🧠' },
+          { value: 'vague', label: 'Vague or outdated', icon: '🌫️' },
+          { value: 'none', label: 'No real ICP', icon: '❌' }
+        ]
+      },
+      {
+        id: 'targeting_criteria',
+        section: 'targeting',
+        type: 'multi',
+        title: 'Which criteria are actively used to select accounts today?',
+        description: 'Select the criteria that actually influence who gets worked.',
+        minSelections: 1,
+        options: [
+          { value: 'industry', label: 'Industry', icon: '🏭' },
+          { value: 'employee-size', label: 'Employee size', icon: '👥' },
+          { value: 'revenue', label: 'Revenue band', icon: '💶' },
+          { value: 'geography', label: 'Geography', icon: '🌍' },
+          { value: 'tech-stack', label: 'Tech stack', icon: '🧰' },
+          { value: 'funding-stage', label: 'Funding stage', icon: '💸' },
+          { value: 'hiring-pattern', label: 'Hiring pattern', icon: '📈' },
+          { value: 'strategic-initiative', label: 'Strategic initiative / change event', icon: '🚀' },
+          { value: 'current-tools', label: 'Current tools / install base', icon: '🔧' },
+          { value: 'none-consistent', label: 'Nothing consistent', icon: '❌' }
+        ]
+      },
+      {
+        id: 'buyer_roles_targeted',
+        section: 'targeting',
+        type: 'multi',
+        title: 'Which buyer roles do reps usually target first?',
+        description: 'Pick the roles most commonly targeted in first-touch prospecting.',
+        minSelections: 1,
+        options: [
+          { value: 'exec', label: 'Executive / senior leadership', icon: '👔' },
+          { value: 'manager', label: 'Manager / team lead', icon: '🧑‍💼' },
+          { value: 'practitioner', label: 'Practitioner / operator', icon: '⚙️' },
+          { value: 'technical', label: 'Technical / IT buyer', icon: '💻' },
+          { value: 'procurement', label: 'Procurement / finance', icon: '🧾' },
+          { value: 'varies', label: 'It varies case by case', icon: '🔄' }
+        ]
+      },
+      {
+        id: 'disqualifiers_defined',
+        section: 'targeting',
+        type: 'single',
+        title: 'Do you have explicit disqualification criteria?',
+        description: 'A good ICP also includes clear reasons to not spend rep time on an account.',
+        options: [
+          { value: 'yes-clear', label: 'Yes — clearly defined', icon: '✅' },
+          { value: 'some-informal', label: 'Some informal rules', icon: '➖' },
+          { value: 'no', label: 'No real disqualifiers', icon: '❌' }
+        ]
+      },
+      {
+        id: 'disqualifier_types',
+        section: 'targeting',
+        type: 'multi',
+        title: 'Which of these currently disqualify an account from outbound?',
+        description: 'Select every reason that genuinely removes an account from active prospecting.',
+        minSelections: 1,
+        options: [
+          { value: 'too-small', label: 'Too small / low-value', icon: '📉' },
+          { value: 'wrong-segment', label: 'Wrong segment / use case', icon: '🧩' },
+          { value: 'wrong-geo', label: 'Wrong geography', icon: '🗺️' },
+          { value: 'low-strategic-value', label: 'Low strategic value', icon: '📌' },
+          { value: 'no-buying-complexity', label: 'No buying complexity / poor fit', icon: '🚫' },
+          { value: 'no-signal', label: 'No relevant trigger or signal', icon: '📡' },
+          { value: 'none', label: 'None clearly defined', icon: '❌' }
+        ],
+        condition: answers => answers.disqualifiers_defined !== 'no'
+      },
+      {
+        id: 'who_selects_accounts',
+        section: 'targeting',
+        type: 'single',
+        title: 'Who decides which accounts are worth working?',
+        description: 'We are trying to understand whether selection is rep-led, manager-led, or system-led.',
+        options: [
+          { value: 'rep', label: 'Each rep decides', icon: '🧍' },
+          { value: 'manager', label: 'Managers decide', icon: '🧠' },
+          { value: 'revops', label: 'RevOps / operations', icon: '⚙️' },
+          { value: 'marketing-sales', label: 'Sales + marketing together', icon: '🤝' },
+          { value: 'signal-rules', label: 'Signal-based rules or scoring', icon: '📡' },
+          { value: 'named-list', label: 'Named account / target account list', icon: '📋' }
+        ]
+      },
+      {
+        id: 'targeting_review',
+        section: 'targeting',
+        type: 'single',
+        title: 'How often is targeting reviewed or updated?',
+        description: 'Good targeting evolves as you learn what converts.',
+        options: [
+          { value: 'weekly', label: 'Weekly', icon: '📆' },
+          { value: 'monthly', label: 'Monthly', icon: '🗓️' },
+          { value: 'quarterly', label: 'Quarterly', icon: '📅' },
+          { value: 'occasional', label: 'Occasionally', icon: '⌛' },
+          { value: 'rarely', label: 'Almost never', icon: '🛑' }
+        ]
+      },
+      {
+        id: 'named_accounts',
+        section: 'targeting',
+        type: 'single',
+        title: 'Do you use a named account list or account tiering model?',
+        description: 'This is especially relevant for higher ACV or multi-stakeholder motions.',
+        options: [
+          { value: 'formal', label: 'Yes — formal and documented', icon: '📋' },
+          { value: 'partial', label: 'Partially', icon: '🧩' },
+          { value: 'no', label: 'No', icon: '❌' }
+        ],
+        condition: answers => isEnterpriseMotion(answers)
+      },
+      {
+        id: 'engagement_signals',
+        section: 'signals',
+        type: 'multi',
+        title: 'Which engagement signals do you currently track?',
+        description: 'Choose the engagement behaviors that actually make it into your prospecting motion.',
+        minSelections: 1,
+        options: [
+          { value: 'web-visits', label: 'Website visits', icon: '🌐' },
+          { value: 'pricing', label: 'Pricing page views', icon: '💳' },
+          { value: 'case-studies', label: 'Case study / customer story views', icon: '📚' },
+          { value: 'downloads', label: 'Content downloads', icon: '⬇️' },
+          { value: 'webinars', label: 'Webinar registrations / attendance', icon: '🎥' },
+          { value: 'ad-engagement', label: 'Ad engagement', icon: '📣' },
+          { value: 'email-clicks', label: 'Email clicks / replies', icon: '📧' },
+          { value: 'social-engagement', label: 'LinkedIn / social engagement', icon: '💬' },
+          { value: 'multi-stakeholder', label: 'Multiple stakeholders engaging', icon: '👥' },
+          { value: 'product-usage', label: 'Product usage / trial activity', icon: '🖥️' },
+          { value: 'none', label: 'None tracked systematically', icon: '❌' }
+        ]
+      },
+      {
+        id: 'company_signals',
+        section: 'signals',
+        type: 'multi',
+        title: 'Which company-level signals do you currently track?',
+        description: 'Select the company signals that influence when and why outreach happens.',
+        minSelections: 1,
+        options: [
+          { value: 'hiring', label: 'Hiring surges / hiring patterns', icon: '📈' },
+          { value: 'funding', label: 'Funding', icon: '💸' },
+          { value: 'leadership', label: 'Leadership changes', icon: '👔' },
+          { value: 'tech-change', label: 'Tech stack changes', icon: '🧰' },
+          { value: 'ma', label: 'M&A activity', icon: '🤝' },
+          { value: 'financial-reports', label: 'Financial / strategic reports', icon: '📊' },
+          { value: 'industry-reports', label: 'Market / industry reports', icon: '📰' },
+          { value: 'expansion', label: 'Expansion into new markets', icon: '🌍' },
+          { value: 'layoffs', label: 'Layoffs / restructuring', icon: '⚠️' },
+          { value: 'none', label: 'None tracked systematically', icon: '❌' }
+        ]
+      },
+      {
+        id: 'personal_signals',
+        section: 'signals',
+        type: 'multi',
+        title: 'Which personal signals do you currently track?',
+        description: 'These are signals tied to the specific people you may want to contact.',
+        minSelections: 1,
+        options: [
+          { value: 'job-change', label: 'Job changes', icon: '🔄' },
+          { value: 'podcasts', label: 'Podcast appearances', icon: '🎙️' },
+          { value: 'blog-posts', label: 'Blog posts / articles', icon: '✍️' },
+          { value: 'linkedin-posts', label: 'LinkedIn posts / comments', icon: '💬' },
+          { value: 'speaking', label: 'Conference speaking', icon: '🎤' },
+          { value: 'press', label: 'Interviews / press quotes', icon: '📰' },
+          { value: 'team-updates', label: 'Team announcements', icon: '👥' },
+          { value: 'none', label: 'None tracked systematically', icon: '❌' }
+        ]
+      },
+      {
+        id: 'daily_prioritization',
+        section: 'signals',
+        type: 'single',
+        title: 'How do reps decide which accounts to work first each day?',
+        description: 'We want the real workflow, not the ideal version.',
+        options: [
+          { value: 'manager', label: 'Manager assigns priorities', icon: '🧠' },
+          { value: 'rep-manual', label: 'Reps choose manually', icon: '🧍' },
+          { value: 'territory-list', label: 'By territory / static list', icon: '📋' },
+          { value: 'freshest-mql', label: 'Freshest inbound / MQL first', icon: '📥' },
+          { value: 'signal-strength', label: 'By signal strength / urgency', icon: '📡' },
+          { value: 'account-tier', label: 'By account tier / priority list', icon: '🏷️' },
+          { value: 'no-system', label: 'No clear system', icon: '❌' }
+        ]
+      },
+      {
+        id: 'signal_weighting',
+        section: 'signals',
+        type: 'single',
+        title: 'Do you weight or score signals differently?',
+        description: 'Not all signals are equal — this tells us how mature the prioritization logic is.',
+        options: [
+          { value: 'formal', label: 'Yes — formally', icon: '🧮' },
+          { value: 'informal', label: 'Yes — informally', icon: '📝' },
+          { value: 'no', label: 'No', icon: '❌' },
+          { value: 'unsure', label: 'Not sure', icon: '❔' }
+        ]
+      },
+      {
+        id: 'signal_stacking',
+        section: 'signals',
+        type: 'single',
+        title: 'Do you use signal stacking before activating outreach?',
+        description: 'Signal stacking means using combinations of fit, timing, engagement, and context instead of acting on single signals alone.',
+        options: [
+          { value: 'usually', label: 'Yes — usually 3+ signals', icon: '🧠' },
+          { value: 'sometimes', label: 'Sometimes', icon: '➖' },
+          { value: 'rarely', label: 'Rarely', icon: '⚠️' },
+          { value: 'never', label: 'No', icon: '❌' }
+        ]
+      },
+      {
+        id: 'signal_sla',
+        section: 'signals',
+        type: 'single',
+        title: 'How quickly should a strong signal trigger action?',
+        description: 'We are looking for your real service-level expectation, not best-case behavior.',
+        options: [
+          { value: 'lt1h', label: 'Within 1 hour', icon: '⚡' },
+          { value: 'same-day', label: 'Same day', icon: '📅' },
+          { value: '24-48', label: '24–48 hours', icon: '🕒' },
+          { value: '3plus', label: '3+ days', icon: '🐢' },
+          { value: 'none', label: 'No clear SLA', icon: '❌' }
+        ]
+      },
+      {
+        id: 'signal_routing',
+        section: 'signals',
+        type: 'multi',
+        title: 'How are signals routed today?',
+        description: 'Select all of the mechanisms that are actively used.',
+        minSelections: 1,
+        options: [
+          { value: 'slack', label: 'Slack / team alert', icon: '💬' },
+          { value: 'crm-task', label: 'CRM task', icon: '📌' },
+          { value: 'queue', label: 'Sequencing / calling queue', icon: '📋' },
+          { value: 'email-alert', label: 'Email alert', icon: '📧' },
+          { value: 'manager-review', label: 'Manager review', icon: '🧠' },
+          { value: 'marketing-workflow', label: 'Marketing workflow', icon: '📣' },
+          { value: 'not-systematic', label: 'Not routed systematically', icon: '❌' }
+        ]
+      },
+      {
+        id: 'signal_expiry',
+        section: 'signals',
+        type: 'single',
+        title: 'Do you define how long a signal stays actionable?',
+        description: 'This helps reveal whether stale signals are being treated like fresh ones.',
+        options: [
+          { value: 'yes', label: 'Yes', icon: '⏳' },
+          { value: 'partial', label: 'Partially', icon: '➖' },
+          { value: 'no', label: 'No', icon: '❌' }
+        ]
+      },
+      {
+        id: 'best_signals',
+        section: 'signals',
+        type: 'textarea',
+        title: 'Which signals most reliably lead to meetings or opportunities?',
+        description: 'Tell us what tends to convert best in your environment.',
+        condition: answers => hasAnySignalTracking(answers)
+      },
+      {
+        id: 'research_time',
+        section: 'research',
+        type: 'single',
+        title: 'How much research is typically done before first outreach?',
+        description: 'We are trying to understand the actual pre-touch research habit.',
+        options: [
+          { value: 'none', label: 'None', icon: '❌' },
+          { value: '1-2', label: '1–2 minutes', icon: '⏱️' },
+          { value: '3-5', label: '3–5 minutes', icon: '🕒' },
+          { value: '5-10', label: '5–10 minutes', icon: '🔎' },
+          { value: 'deep', label: 'Deep research', icon: '🧠' }
+        ]
+      },
+      {
+        id: 'research_sources',
+        section: 'research',
+        type: 'multi',
+        title: 'What sources are commonly used in account research?',
+        description: 'Choose the sources that are used consistently enough to matter.',
+        minSelections: 1,
+        options: [
+          { value: 'linkedin', label: 'LinkedIn', icon: '💼' },
+          { value: 'website', label: 'Company website', icon: '🌐' },
+          { value: 'reports', label: 'Annual / earnings / strategic reports', icon: '📊' },
+          { value: 'funding-db', label: 'Funding databases', icon: '💸' },
+          { value: 'jobs', label: 'Job postings', icon: '🧲' },
+          { value: 'tech-tools', label: 'Tech stack tools', icon: '🧰' },
+          { value: 'news', label: 'News / market reports', icon: '📰' },
+          { value: 'review-sites', label: 'Review sites', icon: '⭐' },
+          { value: 'crm-history', label: 'CRM history / prior touchpoints', icon: '🗂️' },
+          { value: 'call-recordings', label: 'Call recordings / notes', icon: '🎧' },
+          { value: 'none', label: 'No systematic research sources', icon: '❌' }
+        ]
+      },
+      {
+        id: 'research_to_message',
+        section: 'research',
+        type: 'single',
+        title: 'How do reps usually turn research into outreach?',
+        description: 'This is one of the clearest indicators of messaging maturity.',
+        options: [
+          { value: 'generic', label: 'Mostly generic templates', icon: '🧱' },
+          { value: 'small-snippet', label: 'Small personalization snippet', icon: '✂️' },
+          { value: 'signal-hypothesis', label: 'Signal-based hypothesis', icon: '💡' },
+          { value: 'persona-problem', label: 'Persona + account-specific problem framing', icon: '🧭' },
+          { value: 'rep-dependent', label: 'It depends heavily on the rep', icon: '🎲' }
+        ]
+      },
+      {
+        id: 'research_framework',
+        section: 'research',
+        type: 'single',
+        title: 'Do you have a documented research framework?',
+        description: 'A repeatable framework matters if you want research quality to scale beyond top performers.',
+        options: [
+          { value: 'yes', label: 'Yes', icon: '📘' },
+          { value: 'informal', label: 'Informal only', icon: '📝' },
+          { value: 'no', label: 'No', icon: '❌' }
+        ]
+      },
+      {
+        id: 'research_automation',
+        section: 'research',
+        type: 'multi',
+        title: 'Do you use AI, software tools, or alerts for account research?',
+        description: 'Select every approach that is actively used today.',
+        minSelections: 1,
+        options: [
+          { value: 'clay', label: 'Clay / enrichment workflows', icon: '🧱' },
+          { value: 'sales-nav', label: 'Sales Navigator', icon: '🔎' },
+          { value: 'apollo', label: 'Apollo / prospecting tools', icon: '📡' },
+          { value: 'ai-agents', label: 'AI agents / LLM workflows', icon: '🤖' },
+          { value: 'google-alerts', label: 'Google Alerts', icon: '🔔' },
+          { value: 'intent-platforms', label: 'Intent platforms', icon: '📈' },
+          { value: 'custom-ops', label: 'Custom automation / internal ops', icon: '⚙️' },
+          { value: 'none', label: 'No research automation', icon: '❌' }
+        ]
+      },
+      {
+        id: 'automation_usage',
+        section: 'research',
+        type: 'multi',
+        title: 'How is automation actually used?',
+        description: 'Choose the jobs your tooling or AI really performs.',
+        minSelections: 1,
+        options: [
+          { value: 'summaries', label: 'Account summaries', icon: '📝' },
+          { value: 'monitoring', label: 'Trigger / signal monitoring', icon: '🔔' },
+          { value: 'persona-research', label: 'Persona research', icon: '👤' },
+          { value: 'message-drafting', label: 'Message drafting', icon: '✍️' },
+          { value: 'signal-enrichment', label: 'Signal enrichment', icon: '📡' },
+          { value: 'prioritization', label: 'Prioritization or scoring', icon: '🧮' },
+          { value: 'call-prep', label: 'Call prep / meeting prep', icon: '📞' }
+        ],
+        condition: answers => Array.isArray(answers.research_automation) && !answers.research_automation.includes('none')
+      },
+      {
+        id: 'research_consistency',
+        section: 'research',
+        type: 'scale',
+        title: 'How consistent is research quality across reps?',
+        description: 'This helps identify whether the system is strong or whether a few reps carry the motion.',
+        labels: ['Very inconsistent', 'Inconsistent', 'Mixed', 'Consistent', 'Very consistent']
+      },
+      {
+        id: 'channel_difference',
+        section: 'messaging',
+        type: 'single',
+        title: 'How different is your messaging by channel?',
+        description: 'Channel-specific messaging is usually stronger than copying the same pitch into every touch.',
+        options: [
+          { value: 'same', label: 'Mostly the same across channels', icon: '📄' },
+          { value: 'somewhat', label: 'Somewhat adapted', icon: '🧩' },
+          { value: 'very-different', label: 'Clearly channel-specific', icon: '🎯' }
+        ]
+      },
+      {
+        id: 'email_construction',
+        section: 'messaging',
+        type: 'single',
+        title: 'How is email messaging typically constructed?',
+        description: 'Pick the statement that best describes your current email approach.',
+        options: [
+          { value: 'product-led', label: 'Product-led', icon: '📦' },
+          { value: 'pain-led', label: 'Pain-led', icon: '🩺' },
+          { value: 'hypothesis-led', label: 'Hypothesis-led', icon: '💡' },
+          { value: 'social-proof-led', label: 'Social proof-led', icon: '🏆' },
+          { value: 'rep-dependent', label: 'Varies by rep', icon: '🎲' }
+        ]
+      },
+      {
+        id: 'phone_construction',
+        section: 'messaging',
+        type: 'single',
+        title: 'How is cold call messaging typically constructed?',
+        description: 'This helps us see whether calling follows a real framework or mostly relies on rep style.',
+        options: [
+          { value: 'product-led', label: 'Product-led opener', icon: '📦' },
+          { value: 'question-led', label: 'Question-led', icon: '❓' },
+          { value: 'problem-led', label: 'Problem-led', icon: '🩺' },
+          { value: 'signal-led', label: 'Signal-led', icon: '📡' },
+          { value: 'rep-dependent', label: 'Varies by rep', icon: '🎲' }
+        ]
+      },
+      {
+        id: 'social_construction',
+        section: 'messaging',
+        type: 'single',
+        title: 'How is LinkedIn / social outreach typically constructed?',
+        description: 'We are looking for the actual pattern, not the intended pattern.',
+        options: [
+          { value: 'direct-pitch', label: 'Direct pitch', icon: '📨' },
+          { value: 'light-engage-then-dm', label: 'Light engagement then DM', icon: '💬' },
+          { value: 'thought-leadership-plus-dm', label: 'Thought leadership + DM', icon: '🧠' },
+          { value: 'manual-personalization', label: 'Manual personalization', icon: '✍️' },
+          { value: 'not-used', label: 'Not used much', icon: '❌' }
+        ]
+      },
+      {
+        id: 'message_variation',
+        section: 'messaging',
+        type: 'multi',
+        title: 'Which dimensions actually change the message?',
+        description: 'Select the variables that materially change how the team messages.',
+        minSelections: 1,
+        options: [
+          { value: 'persona', label: 'Persona', icon: '👤' },
+          { value: 'industry', label: 'Industry', icon: '🏭' },
+          { value: 'segment', label: 'Company segment', icon: '📊' },
+          { value: 'signal-type', label: 'Signal type', icon: '📡' },
+          { value: 'buyer-stage', label: 'Buying stage', icon: '🪜' },
+          { value: 'account-tier', label: 'Account tier', icon: '🏷️' },
+          { value: 'region', label: 'Region / geography', icon: '🌍' },
+          { value: 'almost-nothing', label: 'Almost nothing changes', icon: '❌' }
+        ]
+      },
+      {
+        id: 'messaging_changes',
+        section: 'messaging',
+        type: 'single',
+        title: 'How are messaging changes made today?',
+        description: 'We want to understand whether message changes are managed, tested, or improvised.',
+        options: [
+          { value: 'rep-improvise', label: 'Reps improvise individually', icon: '🎲' },
+          { value: 'manager-updates', label: 'Manager updates scripts', icon: '🧠' },
+          { value: 'team-review', label: 'Team reviews and updates', icon: '🤝' },
+          { value: 'testing-data', label: 'Driven by testing data', icon: '🧪' },
+          { value: 'anecdotal', label: 'Mostly anecdotal feedback', icon: '🗣️' },
+          { value: 'rarely', label: 'Rarely changed', icon: '🛑' }
+        ]
+      },
+      {
+        id: 'testing_loop',
+        section: 'messaging',
+        type: 'single',
+        title: 'Do you have a documented messaging testing loop?',
+        description: 'A consistent testing loop is a strong signal of message maturity.',
+        options: [
+          { value: 'yes', label: 'Yes', icon: '🧪' },
+          { value: 'partial', label: 'Partially', icon: '➖' },
+          { value: 'no', label: 'No', icon: '❌' }
+        ]
+      },
+      {
+        id: 'messaging_review_cadence',
+        section: 'messaging',
+        type: 'single',
+        title: 'How often is messaging reviewed?',
+        description: 'This includes scripts, templates, call openers, and social approaches.',
+        options: [
+          { value: 'weekly', label: 'Weekly', icon: '📆' },
+          { value: 'monthly', label: 'Monthly', icon: '🗓️' },
+          { value: 'quarterly', label: 'Quarterly', icon: '📅' },
+          { value: 'when-dropping', label: 'Only when results drop', icon: '📉' },
+          { value: 'almost-never', label: 'Almost never', icon: '🛑' }
+        ]
+      },
+      {
+        id: 'message_library',
+        section: 'messaging',
+        type: 'single',
+        title: 'Do you have a library of hypotheses, openers, or first-touch patterns by segment or persona?',
+        description: 'This shows whether the team is building reusable messaging intelligence.',
+        options: [
+          { value: 'yes', label: 'Yes', icon: '📚' },
+          { value: 'partial', label: 'Partially', icon: '🧩' },
+          { value: 'no', label: 'No', icon: '❌' }
+        ]
+      },
+      {
+        id: 'active_channels',
+        section: 'sequence',
+        type: 'multi',
+        title: 'Which channels are actively included in outbound sequences?',
+        description: 'Choose the channels that are truly part of your motion, not just one-off experiments.',
+        minSelections: 1,
+        options: [
+          { value: 'email', label: 'Email', icon: '📧' },
+          { value: 'phone', label: 'Phone', icon: '📞' },
+          { value: 'linkedin', label: 'LinkedIn / social', icon: '💬' },
+          { value: 'video', label: 'Video', icon: '🎥' },
+          { value: 'direct-mail', label: 'Direct mail', icon: '📬' },
+          { value: 'sms', label: 'SMS / WhatsApp', icon: '📱' },
+          { value: 'retargeting', label: 'Content / retargeting support', icon: '📣' },
+          { value: 'events', label: 'Events / field touchpoints', icon: '🎪' }
+        ]
+      },
+      {
+        id: 'channel_coordination',
+        section: 'sequence',
+        type: 'single',
+        title: 'How coordinated are those channels?',
+        description: 'We are looking for cross-channel orchestration, not just channel availability.',
+        options: [
+          { value: 'tight', label: 'Tightly coordinated', icon: '🎯' },
+          { value: 'somewhat', label: 'Somewhat coordinated', icon: '🧩' },
+          { value: 'siloed', label: 'Mostly siloed', icon: '🚧' },
+          { value: 'rep-specific', label: 'Each rep does their own thing', icon: '🎲' }
+        ]
+      },
+      {
+        id: 'touch_count',
+        section: 'sequence',
+        type: 'single',
+        title: 'How many touches are typically in your core outbound sequence?',
+        description: 'We want the actual default sequence length.',
+        options: [
+          { value: '1-3', label: '1–3 touches', icon: '1️⃣' },
+          { value: '4-6', label: '4–6 touches', icon: '4️⃣' },
+          { value: '7-10', label: '7–10 touches', icon: '7️⃣' },
+          { value: '11plus', label: '11+ touches', icon: '🔟' },
+          { value: 'varies', label: 'Varies widely', icon: '🔄' }
+        ]
+      },
+      {
+        id: 'sequence_duration',
+        section: 'sequence',
+        type: 'single',
+        title: 'How long does a typical sequence run?',
+        description: 'Longer is not always better; we want to understand your actual design.',
+        options: [
+          { value: 'lt1week', label: 'Less than 1 week', icon: '⚡' },
+          { value: '1-2weeks', label: '1–2 weeks', icon: '📅' },
+          { value: '3-4weeks', label: '3–4 weeks', icon: '🗓️' },
+          { value: '5plus', label: '5+ weeks', icon: '📆' },
+          { value: 'no-standard', label: 'No standard', icon: '❌' }
+        ]
+      },
+      {
+        id: 'first_channel',
+        section: 'sequence',
+        type: 'single',
+        title: 'What channel usually comes first?',
+        description: 'This tells us how the motion is framed from the first touch.',
+        options: [
+          { value: 'email', label: 'Email', icon: '📧' },
+          { value: 'phone', label: 'Phone', icon: '📞' },
+          { value: 'linkedin', label: 'LinkedIn / social', icon: '💬' },
+          { value: 'signal-based', label: 'Depends on signal type', icon: '📡' },
+          { value: 'rep-dependent', label: 'Depends on the rep', icon: '🎲' }
+        ]
+      },
+      {
+        id: 'sequence_variants',
+        section: 'sequence',
+        type: 'multi',
+        title: 'Do you have different sequence types for different contexts?',
+        description: 'Select every type of sequence variation that exists today.',
+        minSelections: 1,
+        options: [
+          { value: 'cold', label: 'Cold outbound', icon: '🧊' },
+          { value: 'warm', label: 'Warm inbound / engaged follow-up', icon: '🔥' },
+          { value: 'signal-triggered', label: 'Signal-triggered', icon: '📡' },
+          { value: 'event-based', label: 'Event-based', icon: '🎪' },
+          { value: 'persona-specific', label: 'Persona-specific', icon: '👤' },
+          { value: 'segment-specific', label: 'Segment-specific', icon: '📊' },
+          { value: 'no-major-variants', label: 'No major variants', icon: '❌' }
+        ]
+      },
+      {
+        id: 'stop_rules',
+        section: 'sequence',
+        type: 'single',
+        title: 'How are stop / exit rules defined?',
+        description: 'Stop rules are important for consistency, handoff, and reactivation logic.',
+        options: [
+          { value: 'clear', label: 'Clear rules', icon: '✅' },
+          { value: 'informal', label: 'Informal rules', icon: '➖' },
+          { value: 'rep-judgement', label: 'Mostly rep judgment', icon: '🧍' },
+          { value: 'none', label: 'No real rules', icon: '❌' }
+        ]
+      },
+      {
+        id: 'sequence_adaptation',
+        section: 'sequence',
+        type: 'single',
+        title: 'Are sequences adapted to signal type or buying stage?',
+        description: 'This helps separate generic cadence execution from context-aware follow-up.',
+        options: [
+          { value: 'yes', label: 'Yes', icon: '🎯' },
+          { value: 'partial', label: 'Partially', icon: '🧩' },
+          { value: 'no', label: 'No', icon: '❌' }
+        ]
+      },
+      {
+        id: 'first_five_steps',
+        section: 'sequence',
+        type: 'multi',
+        title: 'Which steps usually happen in the first five touches?',
+        description: 'Select the actions that are common early in the sequence.',
+        minSelections: 1,
+        options: [
+          { value: 'cold-email', label: 'Cold email', icon: '📧' },
+          { value: 'call', label: 'Call', icon: '📞' },
+          { value: 'voicemail', label: 'Voicemail', icon: '🎙️' },
+          { value: 'li-connect', label: 'LinkedIn connection', icon: '🔗' },
+          { value: 'li-engage', label: 'Engage with a post', icon: '💬' },
+          { value: 'content-send', label: 'Send content / insight', icon: '📚' },
+          { value: 'manager-escalation', label: 'Manager / exec escalation', icon: '🧠' },
+          { value: 'no-consistency', label: 'No consistent pattern', icon: '❌' }
+        ]
+      },
+      {
+        id: 'follow_documented',
+        section: 'followup',
+        type: 'single',
+        title: 'Do you have distinct follow-up flows for different prospect outcomes?',
+        description: 'We are looking for structured paths after a reply or signal, not just rep improvisation.',
+        options: [
+          { value: 'yes', label: 'Yes', icon: '✅' },
+          { value: 'partial', label: 'Partially', icon: '🧩' },
+          { value: 'no', label: 'No', icon: '❌' }
+        ]
+      },
+      {
+        id: 'five_outcomes',
+        section: 'followup',
+        type: 'multi',
+        title: 'Which of these have a structured follow-up sequence today?',
+        description: 'This maps directly to your post-response operating logic.',
+        minSelections: 1,
+        options: [
+          { value: 'meeting-booked', label: 'Meeting booked', icon: '📅' },
+          { value: 'activated', label: 'Activated / interested but not booked', icon: '🔥' },
+          { value: 'wrong-person', label: 'Wrong person', icon: '↪️' },
+          { value: 'timing', label: 'Timing / later', icon: '⏳' },
+          { value: 'not-interested', label: 'Not interested', icon: '🛑' },
+          { value: 'none', label: 'None formally defined', icon: '❌' }
+        ]
+      },
+      {
+        id: 'activated_flow',
+        section: 'followup',
+        type: 'single',
+        title: 'If a prospect is interested but does not book, what usually happens next?',
+        description: 'This is one of the highest-value follow-up moments in outbound.',
+        options: [
+          { value: 'nurture', label: 'Structured nurture sequence', icon: '🌱' },
+          { value: 'manual', label: 'Manual rep follow-up', icon: '✍️' },
+          { value: 'content-only', label: 'Send content only', icon: '📚' },
+          { value: 'manager', label: 'Manager review / escalation', icon: '🧠' },
+          { value: 'nothing', label: 'Nothing consistent', icon: '❌' }
+        ]
+      },
+      {
+        id: 'wrong_person_flow',
+        section: 'followup',
+        type: 'single',
+        title: 'If a prospect says “wrong person,” what usually happens next?',
+        description: 'Referral and re-threading logic is often missing even when teams think they are following up well.',
+        options: [
+          { value: 'referral-flow', label: 'Referral request flow', icon: '↪️' },
+          { value: 'manual-search', label: 'Rep manually searches for another contact', icon: '🔎' },
+          { value: 'return-to-list', label: 'Account returned to list', icon: '📋' },
+          { value: 'dropped', label: 'Usually dropped', icon: '🛑' },
+          { value: 'rep-dependent', label: 'Depends on the rep', icon: '🎲' }
+        ]
+      },
+      {
+        id: 'timing_flow',
+        section: 'followup',
+        type: 'single',
+        title: 'If timing is the issue, how is follow-up handled?',
+        description: 'This is where many warm accounts go dark.',
+        options: [
+          { value: 'dated-reactivation', label: 'Dated reactivation in CRM', icon: '📅' },
+          { value: 'nurture-track', label: 'Nurture track', icon: '🌱' },
+          { value: 'rep-reminder', label: 'Rep reminder only', icon: '🔔' },
+          { value: 'usually-forgotten', label: 'Usually forgotten', icon: '🫥' },
+          { value: 'no-rule', label: 'No clear rule', icon: '❌' }
+        ]
+      },
+      {
+        id: 'warm_reactivation',
+        section: 'followup',
+        type: 'single',
+        title: 'Are warm accounts reactivated based on new signals?',
+        description: 'Strong reactivation logic is a major differentiator in modern outbound.',
+        options: [
+          { value: 'yes', label: 'Yes', icon: '📡' },
+          { value: 'sometimes', label: 'Sometimes', icon: '➖' },
+          { value: 'no', label: 'No', icon: '❌' },
+          { value: 'unsure', label: 'Not sure', icon: '❔' }
+        ]
+      },
+      {
+        id: 'objection_library',
+        section: 'followup',
+        type: 'single',
+        title: 'Do you have a formal objection library or objection templates?',
+        description: 'We mean something documented enough that reps can reliably use it.',
+        options: [
+          { value: 'yes', label: 'Yes', icon: '📘' },
+          { value: 'partial', label: 'Partially', icon: '🧩' },
+          { value: 'no', label: 'No', icon: '❌' }
+        ]
+      },
+      {
+        id: 'objection_channel_diff',
+        section: 'followup',
+        type: 'single',
+        title: 'Are objections handled differently in email versus phone?',
+        description: 'Channel-specific objection handling is usually stronger than one generic answer library.',
+        options: [
+          { value: 'clear', label: 'Yes — clearly', icon: '🎯' },
+          { value: 'somewhat', label: 'Somewhat', icon: '🧩' },
+          { value: 'no', label: 'No', icon: '❌' },
+          { value: 'not-documented', label: 'Not documented', icon: '📄' }
+        ]
+      },
+      {
+        id: 'common_objections',
+        section: 'followup',
+        type: 'multi',
+        title: 'Which objection categories come up most often?',
+        description: 'Select the objections or brush-offs that materially affect prospecting performance.',
+        minSelections: 1,
+        options: [
+          { value: 'price', label: 'Price / budget', icon: '💶' },
+          { value: 'timing', label: 'Timing', icon: '⏳' },
+          { value: 'relevance', label: 'Relevance / fit', icon: '🎯' },
+          { value: 'status-quo', label: 'Competitor / status quo', icon: '🛡️' },
+          { value: 'authority', label: 'Authority / wrong level', icon: '👔' },
+          { value: 'credibility', label: 'Credibility / trust', icon: '🏛️' },
+          { value: 'send-email', label: '“Just send me an email”', icon: '📧' },
+          { value: 'not-interested', label: '“Not interested”', icon: '🛑' }
+        ]
+      },
+      {
+        id: 'objection_response_style',
+        section: 'followup',
+        type: 'single',
+        title: 'How do reps usually respond to objections?',
+        description: 'This helps us separate systemized handling from rep improvisation.',
+        options: [
+          { value: 'freestyle', label: 'Freestyle', icon: '🎲' },
+          { value: 'scripts', label: 'Scripts / templates', icon: '📄' },
+          { value: 'manager-supported', label: 'Manager-supported', icon: '🧠' },
+          { value: 'framework-based', label: 'Framework-based', icon: '🧭' },
+          { value: 'varies', label: 'Varies significantly by rep', icon: '🔄' }
+        ]
+      },
+      {
+        id: 'calendar_blocks',
+        section: 'management',
+        type: 'single',
+        title: 'Do reps have dedicated prospecting time blocked in their calendars?',
+        description: 'This is one of the strongest indicators of actual operating discipline.',
+        options: [
+          { value: 'daily', label: 'Yes — daily', icon: '📆' },
+          { value: 'weekly', label: 'Yes — several times a week', icon: '🗓️' },
+          { value: 'occasional', label: 'Occasionally', icon: '⌛' },
+          { value: 'no', label: 'No', icon: '❌' }
+        ]
+      },
+      {
+        id: 'calendar_protection',
+        section: 'management',
+        type: 'single',
+        title: 'How protected is that prospecting time?',
+        description: 'If it is frequently sacrificed, the process is usually not truly operationalized.',
+        options: [
+          { value: 'high', label: 'Highly protected', icon: '🛡️' },
+          { value: 'mixed', label: 'Sometimes interrupted', icon: '➖' },
+          { value: 'low', label: 'Often sacrificed', icon: '⚠️' },
+          { value: 'none', label: 'There is no protected time', icon: '❌' }
+        ]
+      },
+      {
+        id: 'prospecting_priority_method',
+        section: 'management',
+        type: 'single',
+        title: 'How is prospecting prioritized day to day?',
+        description: 'This is slightly different from signal logic — we want the operating rhythm behind the daily decision.',
+        options: [
+          { value: 'signal-queue', label: 'Signal-prioritized queue', icon: '📡' },
+          { value: 'manager-set', label: 'Manager-set priorities', icon: '🧠' },
+          { value: 'rep-discretion', label: 'Rep discretion', icon: '🧍' },
+          { value: 'territory-list', label: 'Territory / account list', icon: '📋' },
+          { value: 'urgent-first', label: 'Whatever feels most urgent', icon: '🚨' }
+        ]
+      },
+      {
+        id: 'daily_activity_model',
+        section: 'management',
+        type: 'single',
+        title: 'Do you have a daily activity model?',
+        description: 'This could include activity expectations by channel, time blocks, or minimum outreach targets.',
+        options: [
+          { value: 'yes', label: 'Yes', icon: '📐' },
+          { value: 'partial', label: 'Partially', icon: '🧩' },
+          { value: 'no', label: 'No', icon: '❌' }
+        ]
+      },
+      {
+        id: 'weekly_scorecard',
+        section: 'management',
+        type: 'single',
+        title: 'Do you have a weekly outbound scorecard?',
+        description: 'A real scorecard usually includes both activity and quality / conversion views.',
+        options: [
+          { value: 'yes', label: 'Yes', icon: '📊' },
+          { value: 'partial', label: 'Partially', icon: '🧩' },
+          { value: 'no', label: 'No', icon: '❌' }
+        ]
+      },
+      {
+        id: 'reviewed_metrics',
+        section: 'management',
+        type: 'multi',
+        title: 'Which outbound metrics are reviewed regularly?',
+        description: 'Select the metrics that are actually inspected — not just available in a dashboard somewhere.',
+        minSelections: 1,
+        options: [
+          { value: 'calls', label: 'Calls', icon: '📞' },
+          { value: 'emails', label: 'Emails', icon: '📧' },
+          { value: 'linkedin', label: 'LinkedIn touches', icon: '💬' },
+          { value: 'reply-rate', label: 'Reply rate', icon: '↩️' },
+          { value: 'meeting-rate', label: 'Meeting rate', icon: '📅' },
+          { value: 'meeting-quality', label: 'Meeting quality', icon: '⭐' },
+          { value: 'opportunity-conversion', label: 'Opportunity conversion', icon: '📈' },
+          { value: 'no-show-rate', label: 'No-show rate', icon: '🚫' },
+          { value: 'sequence-performance', label: 'Sequence performance', icon: '🔁' },
+          { value: 'signal-speed', label: 'Signal response speed', icon: '⚡' },
+          { value: 'none', label: 'Nothing consistently', icon: '❌' }
+        ]
+      },
+      {
+        id: 'manager_review_cadence',
+        section: 'management',
+        type: 'single',
+        title: 'How often do managers review outbound execution?',
+        description: 'We mean real inspection and coaching, not just pipeline reviews.',
+        options: [
+          { value: 'daily', label: 'Daily', icon: '📆' },
+          { value: 'weekly', label: 'Weekly', icon: '🗓️' },
+          { value: 'biweekly', label: 'Biweekly', icon: '📅' },
+          { value: 'monthly', label: 'Monthly', icon: '🗂️' },
+          { value: 'rarely', label: 'Rarely', icon: '🛑' }
+        ]
+      },
+      {
+        id: 'quality_review_cadence',
+        section: 'management',
+        type: 'single',
+        title: 'How often are calls, emails, or social touches reviewed for quality?',
+        description: 'This reveals whether there is real QA or mostly volume management.',
+        options: [
+          { value: 'weekly', label: 'Weekly', icon: '📆' },
+          { value: 'monthly', label: 'Monthly', icon: '🗓️' },
+          { value: 'adhoc', label: 'Ad hoc', icon: '🎲' },
+          { value: 'almost-never', label: 'Almost never', icon: '🛑' }
+        ]
+      },
+      {
+        id: 'execution_standardization',
+        section: 'management',
+        type: 'scale',
+        title: 'How standardized is outbound execution across reps?',
+        description: 'This captures whether the system is repeatable or mostly rep-dependent.',
+        labels: ['Very weak', 'Weak', 'Mixed', 'Strong', 'Very strong']
+      },
+      {
+        id: 'top-performer-dependence',
+        section: 'management',
+        type: 'scale',
+        title: 'How much does success depend on individual top performers rather than the system?',
+        description: 'A strong system should not depend too heavily on a few exceptional reps.',
+        labels: ['Depends heavily', 'Depends a lot', 'Mixed', 'Mostly system-led', 'Very system-led']
+      },
+      {
+        id: 'prospecting_schedule',
+        section: 'management',
+        type: 'multi',
+        title: 'When is prospecting typically scheduled?',
+        description: 'Select the scheduling patterns that reflect reality today.',
+        minSelections: 1,
+        options: [
+          { value: 'morning', label: 'Morning blocks', icon: '🌅' },
+          { value: 'afternoon', label: 'Afternoon blocks', icon: '🌇' },
+          { value: 'between-meetings', label: 'Between meetings', icon: '🧩' },
+          { value: 'power-hours', label: 'Fixed team power hours', icon: '⚡' },
+          { value: 'no-standard', label: 'No standard', icon: '❌' }
+        ]
+      },
+      {
+        id: 'prospecting_disruptors',
+        section: 'management',
+        type: 'multi',
+        title: 'What most often disrupts prospecting time?',
+        description: 'Choose the interruptions that most often derail the outbound rhythm.',
+        minSelections: 1,
+        options: [
+          { value: 'customer-calls', label: 'Customer calls / demos', icon: '📞' },
+          { value: 'admin', label: 'Admin / CRM work', icon: '🗂️' },
+          { value: 'internal-meetings', label: 'Internal meetings', icon: '🏢' },
+          { value: 'firefighting', label: 'Firefighting / urgent issues', icon: '🚨' },
+          { value: 'inbound', label: 'Inbound / warm leads', icon: '📥' },
+          { value: 'priority-shifts', label: 'No stable priorities', icon: '🔄' }
+        ]
+      },
+      {
+        id: 'biggest_inefficiencies',
+        section: 'open',
+        type: 'multi',
+        title: 'Where do you believe the biggest inefficiencies are today?',
+        description: 'Select the areas that feel most responsible for missed pipeline or inconsistent execution.',
+        minSelections: 1,
+        options: [
+          { value: 'targeting', label: 'Targeting / ICP fit', icon: '🎯' },
+          { value: 'lead-quality', label: 'Lead quality', icon: '📉' },
+          { value: 'research', label: 'Research', icon: '🔎' },
+          { value: 'messaging', label: 'Messaging', icon: '✍️' },
+          { value: 'signals', label: 'Signal usage', icon: '📡' },
+          { value: 'speed', label: 'Speed to follow-up', icon: '⚡' },
+          { value: 'coordination', label: 'Channel coordination', icon: '🧩' },
+          { value: 'objections', label: 'Objection handling', icon: '🛡️' },
+          { value: 'management', label: 'Manager coaching / operating rhythm', icon: '🧠' },
+          { value: 'measurement', label: 'Measurement / scorecards', icon: '📊' },
+          { value: 'crm', label: 'CRM hygiene / execution tracking', icon: '🗂️' },
+          { value: 'no-system', label: 'No clear system', icon: '❌' }
+        ]
+      },
+      {
+        id: 'double_pipeline_break',
+        section: 'open',
+        type: 'textarea',
+        title: 'What breaks first if you try to double outbound-generated pipeline in the next 90 days?',
+        description: 'This is one of the most valuable diagnostic questions in the entire assessment.'
+      },
+      {
+        id: 'improvement_attempts',
+        section: 'open',
+        type: 'multi',
+        title: 'What have you already tried to improve outbound?',
+        description: 'Choose the initiatives you have already put into the motion.',
+        minSelections: 1,
+        options: [
+          { value: 'new-tools', label: 'New tools', icon: '🧰' },
+          { value: 'training', label: 'Training / enablement', icon: '🎓' },
+          { value: 'more-volume', label: 'More volume', icon: '📈' },
+          { value: 'new-sequences', label: 'New sequences / cadences', icon: '🔁' },
+          { value: 'more-personalization', label: 'More personalization', icon: '✍️' },
+          { value: 'more-marketing-support', label: 'More marketing support', icon: '📣' },
+          { value: 'outsourced-sdr', label: 'Outsourced SDR support', icon: '🤝' },
+          { value: 'signal-tooling', label: 'Signal tooling', icon: '📡' },
+          { value: 'no-major-changes', label: 'No major changes', icon: '❌' }
+        ]
+      },
+      {
+        id: 'lowest_confidence',
+        section: 'open',
+        type: 'single',
+        title: 'Where do you feel least confident today?',
+        description: 'Pick the area where you believe the team currently has the weakest system or lowest confidence.',
+        options: [
+          { value: 'icp', label: 'ICP / targeting', icon: '🎯' },
+          { value: 'signals', label: 'Signals / prioritization', icon: '📡' },
+          { value: 'messaging', label: 'Messaging', icon: '✍️' },
+          { value: 'calling', label: 'Call execution', icon: '📞' },
+          { value: 'social', label: 'Social selling', icon: '💬' },
+          { value: 'followup', label: 'Follow-up', icon: '↩️' },
+          { value: 'management', label: 'Management discipline', icon: '🧠' },
+          { value: 'measurement', label: 'Measurement', icon: '📊' }
+        ]
+      },
+      {
+        id: 'urgency',
+        section: 'open',
+        type: 'single',
+        title: 'How urgent is change?',
+        description: 'This helps us frame readiness and likely priority for action.',
+        options: [
+          { value: 'immediate', label: 'Immediate', icon: '⚡' },
+          { value: 'quarter', label: 'This quarter', icon: '📅' },
+          { value: 'half', label: 'This half', icon: '🗓️' },
+          { value: 'exploring', label: 'Exploring only', icon: '🔎' }
+        ]
+      },
+      {
+        id: 'help_type',
+        section: 'open',
+        type: 'single',
+        title: 'Would you prefer help with rep execution, GTM system design, or both?',
+        description: 'This helps us tailor the recommendation and follow-up path.',
+        options: [
+          { value: 'rep-execution', label: 'Rep execution', icon: '🎯' },
+          { value: 'system-design', label: 'GTM system design', icon: '⚙️' },
+          { value: 'both', label: 'Both', icon: '🧩' },
+          { value: 'not-sure', label: 'Not sure yet', icon: '❔' }
+        ]
+      },
+      {
+        id: 'anything_else',
+        section: 'open',
+        type: 'textarea',
+        title: 'Anything else we should know about your current outbound motion?',
+        description: 'Add any context, constraints, or issues that would help us interpret the assessment.'
+      }
+    ];
+
+    const state = {
+      answers: {},
+      history: [],
+      index: 0,
+      submitted: false,
+      errors: {}
+    };
+
+    const el = {
+      sectionList: document.getElementById('sectionList'),
+      progressMeta: document.getElementById('progressMeta'),
+      sectionMeta: document.getElementById('sectionMeta'),
+      progressFill: document.getElementById('progressFill'),
+      sectionTag: document.getElementById('sectionTag'),
+      questionTitle: document.getElementById('questionTitle'),
+      questionDescription: document.getElementById('questionDescription'),
+      questionContent: document.getElementById('questionContent'),
+      backBtn: document.getElementById('backBtn'),
+      nextBtn: document.getElementById('nextBtn'),
+      saveMdBtn: document.getElementById('saveMdBtn'),
+      questionScreen: document.getElementById('questionScreen'),
+      resultsScreen: document.getElementById('resultsScreen'),
+      submittingScreen: document.getElementById('submittingScreen')
+    };
+
+    el.backBtn.addEventListener('click', goBack);
+    el.nextBtn.addEventListener('click', goNext);
+    el.saveMdBtn.addEventListener('click', downloadCurrentMarkdown);
+
+    function pctValue(group, key) {
+      if (!group || typeof group !== 'object') return 0;
+      return Number(group[key] || 0);
+    }
+
+    function isBusinessEmail(email) {
+      const domain = (email || '').toLowerCase().split('@')[1];
+      return domain && !CONFIG.blockedEmailDomains.includes(domain);
+    }
+
+    function isEnterpriseMotion(answers) {
+      const acv = answers.acv_band;
+      const stakeholders = answers.stakeholder_complexity;
+      return ['30-75', '75-150', '150plus'].includes(acv) && ['4-6', '6plus'].includes(stakeholders);
+    }
+
+    function hasAnySignalTracking(answers) {
+      const groups = ['engagement_signals', 'company_signals', 'personal_signals'];
+      return groups.some(key => Array.isArray(answers[key]) && answers[key].length && !answers[key].includes('none'));
+    }
+
+    function getVisibleQuestions() {
+      return QUESTIONS.filter(q => !q.condition || q.condition(state.answers));
+    }
+
+    function getCurrentQuestion() {
+      const visible = getVisibleQuestions();
+      return visible[state.index] || null;
+    }
+
+    function getSectionCounts(visibleQuestions) {
+      const counts = {};
+      visibleQuestions.forEach(q => { counts[q.section] = (counts[q.section] || 0) + 1; });
+      return counts;
+    }
+
+    function getSectionMeta(sectionId, visibleQuestions) {
+      const sectionQuestions = visibleQuestions.filter(q => q.section === sectionId);
+      const currentQuestionIndexWithinSection = sectionQuestions.findIndex(q => q.id === getCurrentQuestion()?.id);
+      return {
+        total: sectionQuestions.length,
+        current: currentQuestionIndexWithinSection >= 0 ? currentQuestionIndexWithinSection + 1 : 0
+      };
+    }
+
+    function renderSidebar(visibleQuestions) {
+      const counts = getSectionCounts(visibleQuestions);
+      const currentSection = getCurrentQuestion()?.section;
+      const currentQuestionIds = new Set(visibleQuestions.map(q => q.id));
+      const completedSections = new Set();
+
+      SECTION_ORDER.forEach(section => {
+        const sectionQuestions = visibleQuestions.filter(q => q.section === section.id);
+        if (sectionQuestions.length && sectionQuestions.every(q => hasAnswer(q.id))) {
+          completedSections.add(section.id);
+        }
+      });
+
+      el.sectionList.innerHTML = '';
+      SECTION_ORDER.forEach(section => {
+        if (!counts[section.id]) return;
+        const li = document.createElement('li');
+        const cls = ['section-pill'];
+        if (section.id === currentSection) cls.push('active');
+        if (completedSections.has(section.id)) cls.push('done');
+        li.className = cls.join(' ');
+        li.innerHTML = `
+          <div class="name">${section.name}</div>
+          <div class="meta">${counts[section.id]} ${counts[section.id] === 1 ? 'question' : 'questions'}</div>
+        `;
+        el.sectionList.appendChild(li);
+      });
+    }
+
+    function hasAnswer(id) {
+      const value = state.answers[id];
+      if (Array.isArray(value)) return value.length > 0;
+      if (value && typeof value === 'object') return Object.values(value).some(v => String(v).trim() !== '');
+      return value !== undefined && value !== null && String(value).trim() !== '';
+    }
+
+    function render() {
+      const visibleQuestions = getVisibleQuestions();
+      if (state.index >= visibleQuestions.length) state.index = visibleQuestions.length - 1;
+      const question = getCurrentQuestion();
+      if (!question) return;
+
+      renderSidebar(visibleQuestions);
+
+      const overallProgress = ((state.index + 1) / visibleQuestions.length) * 100;
+      const sectionDef = SECTION_ORDER.find(s => s.id === question.section);
+      const sectionPosition = SECTION_ORDER.filter(s => visibleQuestions.some(q => q.section === s.id)).findIndex(s => s.id === question.section) + 1;
+      const sectionMeta = getSectionMeta(question.section, visibleQuestions);
+
+      el.progressMeta.textContent = `Question ${state.index + 1} of ${visibleQuestions.length}`;
+      el.sectionMeta.textContent = `${sectionDef.name} • ${sectionMeta.current}/${sectionMeta.total}`;
+      el.progressFill.style.width = `${overallProgress}%`;
+      el.sectionTag.textContent = `Section ${sectionPosition} • ${sectionDef.name}`;
+      el.questionTitle.textContent = question.title;
+      el.questionDescription.textContent = question.description || '';
+      el.backBtn.disabled = state.history.length === 0;
+      el.nextBtn.textContent = state.index === visibleQuestions.length - 1 ? 'View Results →' : 'Next →';
+      el.questionContent.innerHTML = '';
+      state.errors[question.id] = null;
+
+      renderQuestionContent(question);
+    }
+
+    function renderQuestionContent(question) {
+      switch (question.type) {
+        case 'contact': return renderContactQuestion(question);
+        case 'single': return renderSingleQuestion(question);
+        case 'multi': return renderMultiQuestion(question);
+        case 'scale': return renderScaleQuestion(question);
+        case 'numberGroup': return renderNumberGroupQuestion(question);
+        case 'percentGroup': return renderPercentGroupQuestion(question);
+        case 'textarea': return renderTextareaQuestion(question);
+        default:
+          el.questionContent.innerHTML = '<p class="muted">Unsupported question type.</p>';
+      }
+    }
+
+    function renderContactQuestion(question) {
+      const answer = state.answers[question.id] || {};
+      const wrapper = document.createElement('div');
+      wrapper.className = 'form-grid two';
+      wrapper.innerHTML = `
+        <div class="field">
+          <label for="firstName">First name</label>
+          <input id="firstName" type="text" value="${escapeHtml(answer.firstName || '')}" placeholder="John" />
+        </div>
+        <div class="field">
+          <label for="lastName">Last name</label>
+          <input id="lastName" type="text" value="${escapeHtml(answer.lastName || '')}" placeholder="Doe" />
+        </div>
+        <div class="field">
+          <label for="companyName">Company</label>
+          <input id="companyName" type="text" value="${escapeHtml(answer.companyName || '')}" placeholder="Acme" />
+        </div>
+        <div class="field">
+          <label for="role">Role</label>
+          <input id="role" type="text" value="${escapeHtml(answer.role || '')}" placeholder="VP Sales" />
+        </div>
+        <div class="field">
+          <label for="workEmail">Work email</label>
+          <input id="workEmail" type="email" value="${escapeHtml(answer.email || '')}" placeholder="john@company.com" />
+          <small>We recommend a business email so the respondent copy can be delivered properly.</small>
+        </div>
+        <div class="field">
+          <label for="website">Company website</label>
+          <input id="website" type="url" value="${escapeHtml(answer.website || '')}" placeholder="https://company.com" />
+        </div>
+      `;
+      el.questionContent.appendChild(wrapper);
+    }
+
+    function renderSingleQuestion(question) {
+      const answer = state.answers[question.id];
+      const container = document.createElement('div');
+      container.className = 'options';
+      question.options.forEach(option => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'option-btn' + (answer === option.value ? ' selected' : '');
+        btn.innerHTML = `
+          <span class="option-icon">${option.icon || '•'}</span>
+          <span class="option-text">
+            <span class="option-label">${option.label}</span>
+            ${option.help ? `<span class="option-help">${option.help}</span>` : ''}
+          </span>
+        `;
+        btn.addEventListener('click', () => {
+          state.answers[question.id] = option.value;
+          render();
+        });
+        container.appendChild(btn);
+      });
+      el.questionContent.appendChild(container);
+    }
+
+    function renderMultiQuestion(question) {
+      const answer = Array.isArray(state.answers[question.id]) ? state.answers[question.id] : [];
+      const container = document.createElement('div');
+      container.className = 'options';
+      question.options.forEach(option => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'multi-option' + (answer.includes(option.value) ? ' selected' : '');
+        btn.innerHTML = `
+          <span class="checkmark"></span>
+          <span class="option-icon">${option.icon || '•'}</span>
+          <span class="option-text">
+            <span class="option-label">${option.label}</span>
+            ${option.help ? `<span class="option-help">${option.help}</span>` : ''}
+          </span>
+        `;
+        btn.addEventListener('click', () => {
+          let next = Array.isArray(state.answers[question.id]) ? [...state.answers[question.id]] : [];
+          if (next.includes(option.value)) {
+            next = next.filter(v => v !== option.value);
+          } else {
+            next.push(option.value);
+          }
+          if (option.value === 'none' || option.value === 'none-consistent' || option.value === 'not-systematic' || option.value === 'no-major-variants' || option.value === 'no-consistency' || option.value === 'no-system') {
+            next = [option.value];
+          } else {
+            next = next.filter(v => !['none', 'none-consistent', 'not-systematic', 'no-major-variants', 'no-consistency', 'no-system'].includes(v));
+          }
+          state.answers[question.id] = next;
+          render();
+        });
+        container.appendChild(btn);
+      });
+      const note = document.createElement('p');
+      note.className = 'field-note';
+      note.textContent = 'Select all that apply.';
+      el.questionContent.appendChild(container);
+      el.questionContent.appendChild(note);
+    }
+
+    function renderScaleQuestion(question) {
+      const answer = Number(state.answers[question.id] || 0);
+      const labels = question.labels || ['1', '2', '3', '4', '5'];
+      const wrapper = document.createElement('div');
+      wrapper.className = 'scale-grid';
+      labels.forEach((label, idx) => {
+        const value = idx + 1;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'scale-btn' + (answer === value ? ' selected' : '');
+        btn.innerHTML = `<div class="scale-value">${value}</div><div class="scale-label">${label}</div>`;
+        btn.addEventListener('click', () => {
+          state.answers[question.id] = value;
+          render();
+        });
+        wrapper.appendChild(btn);
+      });
+      el.questionContent.appendChild(wrapper);
+    }
+
+    function renderNumberGroupQuestion(question) {
+      const answer = state.answers[question.id] || {};
+      const wrapper = document.createElement('div');
+      wrapper.className = 'form-grid two';
+      question.fields.forEach(field => {
+        const fieldWrap = document.createElement('div');
+        fieldWrap.className = 'field';
+        fieldWrap.innerHTML = `
+          <label for="${question.id}_${field.key}">${field.label}</label>
+          <input id="${question.id}_${field.key}" type="number" min="${field.min || 0}" step="1" value="${escapeHtml(answer[field.key] ?? '')}" placeholder="0" />
+        `;
+        wrapper.appendChild(fieldWrap);
+      });
+      el.questionContent.appendChild(wrapper);
+    }
+
+    function renderPercentGroupQuestion(question) {
+      const answer = state.answers[question.id] || {};
+      const wrapper = document.createElement('div');
+      wrapper.className = 'percent-grid';
+      question.fields.forEach(field => {
+        const row = document.createElement('div');
+        row.className = 'percent-row';
+        row.innerHTML = `
+          <div class="percent-label">${field.label}</div>
+          <div class="field">
+            <input id="${question.id}_${field.key}" type="number" min="0" max="100" step="1" value="${escapeHtml(answer[field.key] ?? '')}" placeholder="0" />
+          </div>
+        `;
+        wrapper.appendChild(row);
+      });
+      const total = question.fields.reduce((sum, field) => sum + Number(answer[field.key] || 0), 0);
+      const totalDiv = document.createElement('div');
+      totalDiv.className = 'percent-total' + (total !== 100 ? ' invalid' : '');
+      totalDiv.innerHTML = `Current total: <strong>${total}%</strong> ${total === 100 ? '✓' : '— should equal 100%'}`;
+      el.questionContent.appendChild(wrapper);
+      el.questionContent.appendChild(totalDiv);
+    }
+
+    function renderTextareaQuestion(question) {
+      const answer = state.answers[question.id] || '';
+      const wrapper = document.createElement('div');
+      wrapper.className = 'field';
+      wrapper.innerHTML = `
+        <label for="${question.id}_textarea">Your answer</label>
+        <textarea id="${question.id}_textarea" placeholder="Type your response here...">${escapeHtml(answer)}</textarea>
+      `;
+      el.questionContent.appendChild(wrapper);
+    }
+
+    function collectCurrentQuestionValue(question) {
+      switch (question.type) {
+        case 'contact':
+          return {
+            firstName: document.getElementById('firstName').value.trim(),
+            lastName: document.getElementById('lastName').value.trim(),
+            companyName: document.getElementById('companyName').value.trim(),
+            role: document.getElementById('role').value.trim(),
+            email: document.getElementById('workEmail').value.trim(),
+            website: document.getElementById('website').value.trim()
+          };
+        case 'numberGroup': {
+          const value = {};
+          question.fields.forEach(field => {
+            const raw = document.getElementById(`${question.id}_${field.key}`).value;
+            value[field.key] = raw === '' ? '' : Number(raw);
+          });
+          return value;
+        }
+        case 'percentGroup': {
+          const value = {};
+          question.fields.forEach(field => {
+            const raw = document.getElementById(`${question.id}_${field.key}`).value;
+            value[field.key] = raw === '' ? '' : Number(raw);
+          });
+          return value;
+        }
+        case 'textarea':
+          return document.getElementById(`${question.id}_textarea`).value.trim();
+        default:
+          return state.answers[question.id];
+      }
+    }
+
+    function validateCurrentQuestion(question) {
+      const value = collectCurrentQuestionValue(question);
+      let error = '';
+
+      if (question.type === 'contact') {
+        if (!value.firstName) error = 'First name is required.';
+        else if (!value.lastName) error = 'Last name is required.';
+        else if (!value.companyName) error = 'Company name is required.';
+        else if (!value.role) error = 'Role is required.';
+        else if (!value.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.email)) error = 'Please enter a valid work email.';
+        else if (!isBusinessEmail(value.email)) error = 'Please use a business email address.';
+        else if (!value.website || !/^https?:\/\/.+\..+/.test(value.website)) error = 'Please enter a valid website URL, for example https://company.com.';
+      }
+
+      if (question.type === 'single' && !value) error = 'Please select one option.';
+      if (question.type === 'multi') {
+        if (!Array.isArray(value) || value.length < (question.minSelections || 1)) {
+          error = 'Please select at least one option.';
+        }
+      }
+      if (question.type === 'scale' && !value) error = 'Please select a rating.';
+      if (question.type === 'numberGroup') {
+        const vals = Object.values(value);
+        if (vals.some(v => v === '' || Number.isNaN(Number(v)) || Number(v) < 0)) {
+          error = 'Please complete every numeric field.';
+        }
+      }
+      if (question.type === 'percentGroup') {
+        const vals = Object.values(value);
+        const total = vals.reduce((sum, v) => sum + Number(v || 0), 0);
+        if (vals.some(v => v === '' || Number.isNaN(Number(v)) || Number(v) < 0 || Number(v) > 100)) {
+          error = 'Please complete every percentage field with values between 0 and 100.';
+        } else if (total !== 100) {
+          error = 'Your percentages must add up to 100%.';
+        }
+      }
+      if (question.type === 'textarea' && !value) error = 'Please add a response.';
+
+      state.answers[question.id] = value;
+      if (error) {
+        showInlineError(error);
+        return false;
+      }
+      clearInlineError();
+      return true;
+    }
+
+    function showInlineError(message) {
+      clearInlineError();
+      const p = document.createElement('p');
+      p.className = 'error-text';
+      p.id = 'inlineError';
+      p.textContent = message;
+      el.questionContent.appendChild(p);
+    }
+
+    function clearInlineError() {
+      const existing = document.getElementById('inlineError');
+      if (existing) existing.remove();
+    }
+
+    function goNext() {
+      const question = getCurrentQuestion();
+      if (!question) return;
+      if (!validateCurrentQuestion(question)) return;
+      const visibleQuestions = getVisibleQuestions();
+      const currentQuestionId = question.id;
+      if (state.index === visibleQuestions.length - 1) {
+        showResults();
+        return;
+      }
+      state.history.push(currentQuestionId);
+      state.index += 1;
+      render();
+    }
+
+    function goBack() {
+      if (!state.history.length) return;
+      state.history.pop();
+      state.index = Math.max(0, state.index - 1);
+      render();
+    }
+
+    function calculateResults(answers) {
+      const scores = {
+        targeting: 0,
+        signals: 0,
+        messaging: 0,
+        execution: 0,
+        management: 0
+      };
+
+      const clamp = val => Math.max(0, Math.min(100, Math.round(val)));
+      const countGood = (arr, excluded = ['none', 'none-consistent', 'not-systematic', 'no-major-variants', 'no-consistency']) => {
+        if (!Array.isArray(arr)) return 0;
+        return arr.filter(v => !excluded.includes(v)).length;
+      };
+
+      // Targeting
+      const icpMap = { 'very-clear': 26, 'mostly-clear': 20, 'tribal': 12, 'vague': 6, 'none': 0 };
+      scores.targeting += icpMap[answers.icp_clarity] || 0;
+      const criteriaCount = countGood(answers.targeting_criteria, ['none-consistent']);
+      scores.targeting += Math.min(20, criteriaCount * 2.5);
+      const disqMap = { 'yes-clear': 18, 'some-informal': 9, 'no': 0 };
+      scores.targeting += disqMap[answers.disqualifiers_defined] || 0;
+      const disqCount = countGood(answers.disqualifier_types, ['none']);
+      scores.targeting += Math.min(14, disqCount * 2.3);
+      const selectMap = { 'signal-rules': 10, 'named-list': 10, 'marketing-sales': 8, 'manager': 6, 'revops': 6, 'rep': 2 };
+      scores.targeting += selectMap[answers.who_selects_accounts] || 0;
+      const reviewMap = { weekly: 10, monthly: 8, quarterly: 5, occasional: 2, rarely: 0 };
+      scores.targeting += reviewMap[answers.targeting_review] || 0;
+      if (answers.named_accounts === 'formal') scores.targeting += 8;
+      else if (answers.named_accounts === 'partial') scores.targeting += 4;
+
+      // Signals
+      scores.signals += Math.min(18, countGood(answers.engagement_signals, ['none']) * 2);
+      scores.signals += Math.min(18, countGood(answers.company_signals, ['none']) * 2.2);
+      scores.signals += Math.min(12, countGood(answers.personal_signals, ['none']) * 2);
+      const priorityMap = { 'signal-strength': 14, 'account-tier': 10, 'manager': 7, 'freshest-mql': 6, 'territory-list': 4, 'rep-manual': 2, 'no-system': 0 };
+      scores.signals += priorityMap[answers.daily_prioritization] || 0;
+      const weightingMap = { formal: 12, informal: 7, no: 0, unsure: 0 };
+      scores.signals += weightingMap[answers.signal_weighting] || 0;
+      const stackingMap = { usually: 10, sometimes: 6, rarely: 2, never: 0 };
+      scores.signals += stackingMap[answers.signal_stacking] || 0;
+      const slaMap = { lt1h: 10, 'same-day': 8, '24-48': 5, '3plus': 2, none: 0 };
+      scores.signals += slaMap[answers.signal_sla] || 0;
+      const routingCount = countGood(answers.signal_routing, ['not-systematic']);
+      scores.signals += Math.min(8, routingCount * 1.6);
+      const expiryMap = { yes: 8, partial: 4, no: 0 };
+      scores.signals += expiryMap[answers.signal_expiry] || 0;
+
+      // Messaging & research
+      const researchTimeMap = { none: 0, '1-2': 4, '3-5': 8, '5-10': 12, deep: 14 };
+      scores.messaging += researchTimeMap[answers.research_time] || 0;
+      scores.messaging += Math.min(12, countGood(answers.research_sources, ['none']) * 1.4);
+      const researchToMessageMap = { generic: 0, 'small-snippet': 5, 'signal-hypothesis': 12, 'persona-problem': 16, 'rep-dependent': 4 };
+      scores.messaging += researchToMessageMap[answers.research_to_message] || 0;
+      const researchFrameworkMap = { yes: 10, informal: 5, no: 0 };
+      scores.messaging += researchFrameworkMap[answers.research_framework] || 0;
+      scores.messaging += Math.min(8, countGood(answers.research_automation, ['none']) * 1.5);
+      scores.messaging += ((Number(answers.research_consistency) || 0) - 1) * 5;
+      const channelDiffMap = { 'very-different': 12, somewhat: 8, same: 2 };
+      scores.messaging += channelDiffMap[answers.channel_difference] || 0;
+      const constructQuality = value => ({ 'hypothesis-led': 10, 'signal-led': 10, 'problem-led': 8, 'pain-led': 8, 'thought-leadership-plus-dm': 8, 'manual-personalization': 7, 'question-led': 6, 'social-proof-led': 6, 'light-engage-then-dm': 6, 'product-led': 2, 'direct-pitch': 1, 'rep-dependent': 3, 'not-used': 0 }[value] || 0);
+      scores.messaging += constructQuality(answers.email_construction) + constructQuality(answers.phone_construction) + constructQuality(answers.social_construction);
+      scores.messaging += Math.min(10, countGood(answers.message_variation, ['almost-nothing']) * 1.7);
+      const changeMap = { 'testing-data': 12, 'team-review': 9, 'manager-updates': 6, anecdotal: 3, 'rep-improvise': 1, rarely: 0 };
+      scores.messaging += changeMap[answers.messaging_changes] || 0;
+      const testMap = { yes: 10, partial: 5, no: 0 };
+      scores.messaging += testMap[answers.testing_loop] || 0;
+      const reviewCadenceMap = { weekly: 8, monthly: 6, quarterly: 3, 'when-dropping': 2, 'almost-never': 0 };
+      scores.messaging += reviewCadenceMap[answers.messaging_review_cadence] || 0;
+      const libraryMap = { yes: 8, partial: 4, no: 0 };
+      scores.messaging += libraryMap[answers.message_library] || 0;
+
+      // Execution & follow-up
+      scores.execution += Math.min(12, countGood(answers.active_channels) * 1.5);
+      const coordinationMap = { tight: 14, somewhat: 8, siloed: 2, 'rep-specific': 0 };
+      scores.execution += coordinationMap[answers.channel_coordination] || 0;
+      const touchMap = { '7-10': 9, '4-6': 8, '11plus': 6, '1-3': 2, varies: 2 };
+      scores.execution += touchMap[answers.touch_count] || 0;
+      const durationMap = { '1-2weeks': 7, '3-4weeks': 9, '5plus': 7, 'lt1week': 2, 'no-standard': 0 };
+      scores.execution += durationMap[answers.sequence_duration] || 0;
+      scores.execution += Math.min(10, countGood(answers.sequence_variants, ['no-major-variants']) * 1.8);
+      const stopMap = { clear: 10, informal: 5, 'rep-judgement': 2, none: 0 };
+      scores.execution += stopMap[answers.stop_rules] || 0;
+      const adaptMap = { yes: 10, partial: 5, no: 0 };
+      scores.execution += adaptMap[answers.sequence_adaptation] || 0;
+      scores.execution += Math.min(10, countGood(answers.first_five_steps, ['no-consistency']) * 1.4);
+      const followMap = { yes: 12, partial: 6, no: 0 };
+      scores.execution += followMap[answers.follow_documented] || 0;
+      scores.execution += Math.min(16, countGood(answers.five_outcomes, ['none']) * 3);
+      const flowQualityMap = {
+        nurture: 8, manual: 4, 'content-only': 3, manager: 5, nothing: 0,
+        'referral-flow': 8, 'manual-search': 5, 'return-to-list': 2, dropped: 0, 'rep-dependent': 2,
+        'dated-reactivation': 8, 'nurture-track': 7, 'rep-reminder': 3, 'usually-forgotten': 0, 'no-rule': 0
+      };
+      scores.execution += flowQualityMap[answers.activated_flow] || 0;
+      scores.execution += flowQualityMap[answers.wrong_person_flow] || 0;
+      scores.execution += flowQualityMap[answers.timing_flow] || 0;
+      const reactMap = { yes: 8, sometimes: 4, no: 0, unsure: 0 };
+      scores.execution += reactMap[answers.warm_reactivation] || 0;
+      const objectionLibMap = { yes: 10, partial: 5, no: 0 };
+      scores.execution += objectionLibMap[answers.objection_library] || 0;
+      const objectionChannelMap = { clear: 8, somewhat: 5, no: 1, 'not-documented': 0 };
+      scores.execution += objectionChannelMap[answers.objection_channel_diff] || 0;
+      scores.execution += Math.min(8, countGood(answers.common_objections) * 1);
+      const objectionRespMap = { 'framework-based': 10, scripts: 7, 'manager-supported': 5, varies: 2, freestyle: 1 };
+      scores.execution += objectionRespMap[answers.objection_response_style] || 0;
+
+      // Management
+      const calendarMap = { daily: 12, weekly: 8, occasional: 3, no: 0 };
+      scores.management += calendarMap[answers.calendar_blocks] || 0;
+      const protectMap = { high: 10, mixed: 6, low: 2, none: 0 };
+      scores.management += protectMap[answers.calendar_protection] || 0;
+      const dayPriorityMap = { 'signal-queue': 12, 'manager-set': 8, 'territory-list': 5, 'rep-discretion': 2, 'urgent-first': 0 };
+      scores.management += dayPriorityMap[answers.prospecting_priority_method] || 0;
+      const modelMap = { yes: 12, partial: 6, no: 0 };
+      scores.management += modelMap[answers.daily_activity_model] || 0;
+      scores.management += modelMap[answers.weekly_scorecard] || 0;
+      scores.management += Math.min(10, countGood(answers.reviewed_metrics, ['none']) * 1.1);
+      const cadenceMgrMap = { daily: 12, weekly: 10, biweekly: 6, monthly: 3, rarely: 0 };
+      scores.management += cadenceMgrMap[answers.manager_review_cadence] || 0;
+      const qaMap = { weekly: 10, monthly: 7, adhoc: 3, 'almost-never': 0 };
+      scores.management += qaMap[answers.quality_review_cadence] || 0;
+      scores.management += ((Number(answers.execution_standardization) || 0) - 1) * 5;
+      scores.management += ((Number(answers.top_performer_dependence) || 0) - 1) * 5;
+      scores.management += Math.min(6, countGood(answers.prospecting_schedule, ['no-standard']) * 1.5);
+
+      Object.keys(scores).forEach(key => { scores[key] = clamp(scores[key]); });
+
+      const diagnostics = {
+        targeting: {
+          name: 'Targeting Precision',
+          low: 'Targeting appears too loose. ICP clarity, disqualifiers, and account selection logic are likely creating wasted effort and inconsistent fit.',
+          mid: 'Targeting is partially structured, but there are still gaps in how accounts are selected, disqualified, and refreshed.',
+          high: 'Targeting appears relatively mature, with stronger ICP clarity and clearer account selection logic.'
+        },
+        signals: {
+          name: 'Signal Maturity',
+          low: 'Prioritization looks under-structured. Signals are either missing, weakly routed, or not used with enough speed or stacking logic.',
+          mid: 'Some useful signals are in play, but weighting, routing, stacking, or urgency rules likely need work.',
+          high: 'Signal usage appears relatively mature, with good breadth and stronger prioritization logic.'
+        },
+        messaging: {
+          name: 'Messaging & Research Quality',
+          low: 'Messaging likely leans too generic or rep-dependent. Research-to-hypothesis conversion and testing loops appear limited.',
+          mid: 'There is some message structure, but channel-specific adaptation and testing discipline are still uneven.',
+          high: 'Messaging and research quality look relatively strong, with better channel fit and more systematic iteration.'
+        },
+        execution: {
+          name: 'Execution & Follow-Up Discipline',
+          low: 'Execution appears inconsistent. Sequence logic, outcome-based follow-up, and objection handling are likely creating drop-off.',
+          mid: 'There is some process in place, but sequence coordination and follow-up coverage still need strengthening.',
+          high: 'Execution looks relatively disciplined, with stronger sequence structure, follow-up flows, and objection handling.'
+        },
+        management: {
+          name: 'Management & Operating Rhythm',
+          low: 'Prospecting likely lacks enough calendar protection, scorecards, review cadence, or coaching to be repeatable at scale.',
+          mid: 'There is some operating rhythm, but it likely depends too much on rep habits or inconsistent inspection.',
+          high: 'Management discipline appears relatively strong, with better calendar structure, scorecards, and review rhythm.'
+        }
+      };
+
+      const ordered = Object.entries(scores)
+        .map(([key, value]) => ({ key, value, name: diagnostics[key].name }))
+        .sort((a, b) => a.value - b.value);
+
+      const primary = ordered[0];
+      const secondary = ordered[1];
+
+      const getCopy = item => {
+        const profile = diagnostics[item.key];
+        if (item.value < 45) return profile.low;
+        if (item.value < 70) return profile.mid;
+        return profile.high;
+      };
+
+      const enterprise = isEnterpriseMotion(answers);
+      const selfSourcedShare = pctValue(answers.pipeline_mix, 'selfSourced');
+      const mqlShare = pctValue(answers.pipeline_mix, 'mqlInbound');
+
+      const recommendations = [];
+      const lowSignals = scores.signals < 65;
+      const lowExecution = scores.execution < 65;
+      const lowMessaging = scores.messaging < 65;
+      const lowTargeting = scores.targeting < 65;
+      const lowManagement = scores.management < 65;
+
+      recommendations.push({
+        service: 'prospecting',
+        score: (100 - scores.execution) + (100 - scores.messaging) + (100 - scores.targeting) + (lowManagement ? 8 : 0),
+        reason: 'The biggest leverage appears to be a stronger outbound operating system: ICP precision, research method, channel-specific messaging, sequence design, follow-up structure, and rep execution discipline.'
+      });
+
+      recommendations.push({
+        service: 'signal',
+        score: (100 - scores.signals) + (mqlShare > 20 ? 10 : 0) + (answers.shared_targeting_logic === 'no' ? 8 : 0) + (answers.signal_weighting === 'no' ? 8 : 0),
+        reason: 'Prioritization, urgency, and routing appear to need a stronger signal-driven system so the team can work the right accounts at the right time and re-activate warm opportunities faster.'
+      });
+
+      if (enterprise || answers.named_accounts === 'formal' || answers.named_accounts === 'partial') {
+        recommendations.push({
+          service: 'abm',
+          score: (enterprise ? 30 : 0) + (answers.named_accounts === 'no' ? 18 : 8) + (answers.shared_targeting_logic === 'no' ? 12 : 4) + (answers.channel_coordination === 'siloed' ? 10 : 4),
+          reason: 'Your motion appears to have account-level complexity that may need stronger account selection, personalization, buying-group coordination, and sales-marketing orchestration.'
+        });
+      }
+
+      const sortedRecs = recommendations.sort((a, b) => b.score - a.score).slice(0, 3);
+
+      let readiness = 'High intent';
+      if (answers.urgency === 'exploring') readiness = 'Exploring';
+      else if (answers.urgency === 'half') readiness = 'Medium-term';
+      else if (answers.urgency === 'quarter') readiness = 'Near-term';
+
+      const focusAreas = [];
+      if (primary.key === 'targeting') focusAreas.push('Tighten ICP, disqualifiers, and account selection criteria.');
+      if (primary.key === 'signals') focusAreas.push('Install clearer signal categories, routing, weighting, and response rules.');
+      if (primary.key === 'messaging') focusAreas.push('Improve research-to-hypothesis conversion and channel-specific message design.');
+      if (primary.key === 'execution') focusAreas.push('Strengthen sequence rules, outcome-based follow-up, and objection handling.');
+      if (primary.key === 'management') focusAreas.push('Protect prospecting time and add stronger scorecards, QA, and coaching rhythm.');
+      if (secondary.key !== primary.key) {
+        if (secondary.key === 'signals') focusAreas.push('Increase signal stacking and faster activation for warm or high-intent accounts.');
+        if (secondary.key === 'messaging') focusAreas.push('Create a documented testing loop and shared message library.');
+        if (secondary.key === 'execution') focusAreas.push('Make follow-up paths more explicit for Activated, Wrong Person, Timing, and Not Interested outcomes.');
+        if (secondary.key === 'targeting') focusAreas.push('Refresh targeting more frequently and make disqualification more operational.');
+        if (secondary.key === 'management') focusAreas.push('Reduce dependence on individual rep style by systemizing cadence review and operating rhythm.');
+      }
+
+      return {
+        scores,
+        ordered,
+        primary: { ...primary, copy: getCopy(primary) },
+        secondary: { ...secondary, copy: getCopy(secondary) },
+        recommendations: sortedRecs,
+        readiness,
+        focusAreas: [...new Set(focusAreas)].slice(0, 5)
+      };
+    }
+
+    function resultScoreClass(score) {
+      if (score >= 70) return 'high';
+      if (score >= 45) return 'mid';
+      return '';
+    }
+
+    function showResults() {
+      const results = calculateResults(state.answers);
+      const contact = state.answers.contact_info || {};
+      const primaryService = results.recommendations[0]?.service;
+      const introName = contact.firstName ? `${contact.firstName}, here is your outbound diagnosis.` : 'Here is your outbound diagnosis.';
+
+      el.questionScreen.classList.add('hidden');
+      el.submittingScreen.classList.add('hidden');
+      el.resultsScreen.classList.remove('hidden');
+      el.resultsScreen.innerHTML = `
+        <div class="results-wrap">
+          <div class="results-header">
+            <span class="badge">✅ Assessment complete</span>
+            <h2 class="results-title">${escapeHtml(introName)}</h2>
+            <p class="results-intro">
+              We scored your current outbound motion across five dimensions and translated the output into the most likely root causes.
+            </p>
+          </div>
+
+          <div class="summary-grid">
+            <div class="panel">
+              <div class="diagnosis-card">
+                <div class="diagnosis-label">Primary diagnosis</div>
+                <div class="diagnosis-title">${escapeHtml(results.primary.name)}</div>
+                <div class="diagnosis-copy">${escapeHtml(results.primary.copy)}</div>
+              </div>
+              <div class="diagnosis-card secondary">
+                <div class="diagnosis-label">Secondary diagnosis</div>
+                <div class="diagnosis-title">${escapeHtml(results.secondary.name)}</div>
+                <div class="diagnosis-copy">${escapeHtml(results.secondary.copy)}</div>
+              </div>
+              <div class="callout">
+                <strong>Readiness:</strong> ${escapeHtml(results.readiness)}<br />
+                <strong>What this usually means:</strong> the fastest gains come from improving the weakest system layer first rather than adding more activity on top of a broken process.
+              </div>
+            </div>
+
+            <div class="panel">
+              <h3>Score breakdown</h3>
+              <div class="score-list">
+                ${results.ordered.slice().reverse().map(item => `
+                  <div class="score-row">
+                    <div class="score-meta">
+                      <span>${escapeHtml(item.name)}</span>
+                      <strong>${item.value}/100</strong>
+                    </div>
+                    <div class="score-track"><div class="score-fill ${resultScoreClass(item.value)}" style="width:${item.value}%"></div></div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <h3>Recommended next step</h3>
+            <div class="service-cards">
+              ${results.recommendations.map((rec, idx) => {
+                const service = SERVICES[rec.service];
+                return `
+                  <div class="service-card">
+                    <div class="service-head ${service.color}">
+                      <div>
+                        <div class="service-name">${escapeHtml(service.name)}</div>
+                        <div class="service-sub">${escapeHtml(service.description)}</div>
+                      </div>
+                      ${idx === 0 ? '<div class="best-pill">Best match</div>' : ''}
+                    </div>
+                    <div class="service-body">
+                      <div class="service-why">${escapeHtml(rec.reason)}</div>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+
+          <div class="summary-grid">
+            <div class="panel">
+              <h3>What to improve first</h3>
+              <ul class="bullets">
+                ${results.focusAreas.map(item => `<li>${escapeHtml(item)}</li>`).join('')}
+              </ul>
+            </div>
+            <div class="panel">
+              <h3>Submission & delivery</h3>
+              <div class="callout">
+                When you submit, the payload includes:
+                <ul class="bullets">
+                  <li>every raw answer</li>
+                  <li>score breakdown and diagnoses</li>
+                  <li>a generated markdown summary</li>
+                  <li>requested recipients: <span class="inline-code">${escapeHtml(CONFIG.internalRecipient)}</span> and <span class="inline-code">${escapeHtml(contact.email || 'respondent email')}</span></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="actions">
+            <div class="actions-left">
+              <button class="btn btn-secondary" type="button" id="downloadResultsMdBtn">Download results (.md)</button>
+              <button class="btn btn-secondary" type="button" id="restartBtn">Start over</button>
+            </div>
+            <div class="actions-right">
+              <button class="btn btn-primary" type="button" id="submitBtn">Submit assessment →</button>
+            </div>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('submitBtn').addEventListener('click', submitAssessment);
+      document.getElementById('restartBtn').addEventListener('click', restart);
+      document.getElementById('downloadResultsMdBtn').addEventListener('click', downloadCurrentMarkdown);
+    }
+
+    async function submitAssessment() {
+      const question = getCurrentQuestion();
+      const results = calculateResults(state.answers);
+      const payload = buildSubmissionPayload(results);
+
+      el.resultsScreen.classList.add('hidden');
+      el.submittingScreen.classList.remove('hidden');
+
+      let success = true;
+      try {
+        if (!CONFIG.submissionWebhookUrl || CONFIG.submissionWebhookUrl === 'YOUR_N8N_WEBHOOK_URL_HERE') {
+          throw new Error('Please configure submissionWebhookUrl before going live.');
+        }
+        await fetch(CONFIG.submissionWebhookUrl, {
+          method: 'POST',
+          mode: CONFIG.useNoCors ? 'no-cors' : 'cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+      } catch (error) {
+        success = false;
+        console.error('Submission error:', error);
+      }
+
+      el.submittingScreen.classList.add('hidden');
+      el.resultsScreen.classList.remove('hidden');
+      const note = document.createElement('div');
+      note.className = 'callout';
+      note.style.marginTop = '1rem';
+      note.innerHTML = success
+        ? '<strong>Submission sent.</strong>'
+        : '<strong>Submission was not delivered.</strong>';
+      el.resultsScreen.appendChild(note);
+    }
+
+    function restart() {
+      state.answers = {};
+      state.history = [];
+      state.index = 0;
+      el.resultsScreen.classList.add('hidden');
+      el.submittingScreen.classList.add('hidden');
+      el.questionScreen.classList.remove('hidden');
+      render();
+    }
+
+    function buildSubmissionPayload(results) {
+      const markdown = buildMarkdownSummary(results);
+      const contact = state.answers.contact_info || {};
+      return {
+        source: CONFIG.assessmentName,
+        submittedAt: new Date().toISOString(),
+        respondent: contact,
+        answers: state.answers,
+        results,
+        markdown,
+        markdownFilename: buildFilename(contact),
+        plainText: markdown,
+        emailDelivery: {
+          requested: true,
+          internalRecipients: [CONFIG.internalRecipient],
+          respondentRecipients: contact.email ? [contact.email] : [],
+          subjectInternal: `[Outbound Assessment] ${contact.companyName || 'New submission'} — ${contact.firstName || ''} ${contact.lastName || ''}`.replace(/\s+/g, ' ').trim(),
+          subjectRespondent: `Your GTM Diagnostics Outbound Assessment Results`,
+          bodyFormat: 'markdown-or-plain-text'
+        }
+      };
+    }
+
+    function buildFilename(contact) {
+      const base = [contact.companyName || 'company', contact.firstName || 'respondent', 'outbound-assessment'].join('-');
+      return base.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') + '.md';
+    }
+
+    function buildMarkdownSummary(results) {
+      const contact = state.answers.contact_info || {};
+      const qMap = Object.fromEntries(QUESTIONS.map(q => [q.id, q]));
+      const orderedAnswers = getVisibleQuestions().map(q => ({
+        question: q.title,
+        answer: formatAnswerForMarkdown(q.id, state.answers[q.id], qMap[q.id])
+      }));
+
+      return [
+        `# ${CONFIG.assessmentName}`,
+        '',
+        '## Respondent',
+        `- Name: ${safe(contact.firstName)} ${safe(contact.lastName)}`.trim(),
+        `- Company: ${safe(contact.companyName)}`,
+        `- Role: ${safe(contact.role)}`,
+        `- Email: ${safe(contact.email)}`,
+        `- Website: ${safe(contact.website)}`,
+        `- Submitted at: ${new Date().toISOString()}`,
+        '',
+        '## Results Summary',
+        `- Primary diagnosis: ${results.primary.name}`,
+        `- Secondary diagnosis: ${results.secondary.name}`,
+        `- Readiness: ${results.readiness}`,
+        '',
+        '### Score Breakdown',
+        ...results.ordered.map(item => `- ${item.name}: ${item.value}/100`),
+        '',
+        '### Recommended Services',
+        ...results.recommendations.map((rec, idx) => `- ${idx === 0 ? '**Best match** ' : ''}${SERVICES[rec.service].name}: ${rec.reason}`),
+        '',
+        '### Priority Focus Areas',
+        ...results.focusAreas.map(item => `- ${item}`),
+        '',
+        '## Full Answers',
+        ...orderedAnswers.flatMap((item, idx) => [`### ${idx + 1}. ${item.question}`, item.answer || '_No answer provided._', ''])
+      ].join('\n');
+    }
+
+    function formatAnswerForMarkdown(id, value, question) {
+      if (value == null) return '';
+      if (Array.isArray(value)) {
+        return value.length ? value.map(v => `- ${humanizeOption(question, v)}`).join('\n') : '';
+      }
+      if (typeof value === 'object') {
+        return Object.entries(value).map(([key, val]) => `- ${humanizeField(question, key)}: ${val === '' ? '—' : val}${question?.type === 'percentGroup' ? '%' : ''}`).join('\n');
+      }
+      if (question?.type === 'scale') {
+        const label = question.labels?.[Number(value) - 1] || '';
+        return `${value}/5${label ? ` — ${label}` : ''}`;
+      }
+      return humanizeOption(question, value);
+    }
+
+    function humanizeOption(question, value) {
+      if (!question?.options) return String(value);
+      const found = question.options.find(option => option.value === value);
+      return found ? found.label : String(value);
+    }
+
+    function humanizeField(question, key) {
+      const field = question?.fields?.find(f => f.key === key);
+      return field ? field.label : key;
+    }
+
+    function downloadCurrentMarkdown() {
+      const results = calculateResults(state.answers);
+      const markdown = buildMarkdownSummary(results);
+      const contact = state.answers.contact_info || {};
+      const blob = new Blob([markdown], { type: 'text/markdown;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = buildFilename(contact);
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function safe(value) {
+      return value ? String(value) : '—';
+    }
+
+    function escapeHtml(value) {
+      return String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    render();
   </script>
 </body>
 </html>
